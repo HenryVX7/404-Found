@@ -71,8 +71,20 @@
     color: white;
 }
 
-.facebook {
-    background: #1877f2;
+.fa {
+  padding: 10px;
+  font-size: 30px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  text-align: center;
+  text-decoration: none;
+  /* margin: 5px 2px; */
+}
+
+.fa-facebook {
+  background: #3B5998;
+  color: white;
 }
 
 .instagram {
