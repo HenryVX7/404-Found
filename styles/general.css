@@ -5,6 +5,13 @@
     src: url(GDSherpaWeb/GD_Sherpa-Regular.woff) format('woff');
 }
 
+@font-face {
+    font-family: 'GDSageWeb-Medium';
+    font-style: normal;
+    font-weight: 400;
+    src: url(Sage_Web/GDSageWeb-Medium.woff) format('woff');
+}
+
 .top-nav {
     padding: 12px 24px;
     display: flex;
