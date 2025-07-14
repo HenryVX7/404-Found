@@ -107,7 +107,9 @@ const chatInput = document.getElementById('chatInput');
             showTyping();
 
             // Call GoDaddy CaaS API for AI response
-            const apiUrl = 'https://caas.api.godaddy.com/v1/prompts';
+            
+            const apiUrl = 'https://gdapicall.danktroopervx.workers.dev/';
+            // const apiUrl = 'https://caas.api.godaddy.com/v1/prompts';
             const apiKey = 'sso-jwt eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjlPNmczbmpGcmcifQ.eyJhdXRoIjogImJhc2ljIiwgImZ0YyI6IDIsICJpYXQiOiAxNzUyNTMxNTAwLCAianRpIjogIjZsMkJJLWxxbmlHMkhWd19VbndfeEEiLCAidHlwIjogImpvbWF4IiwgInZhdCI6IDE3NTI1MzE1MDAsICJmYWN0b3JzIjogeyJrX2ZlZCI6IDE3NTI1MzE1MDAsICJwX29rdGEiOiAxNzUyNTMxNTAwfSwgImN0eCI6ICIiLCAiYWNjb3VudE5hbWUiOiAiaHBhY2hlY29hcmFnb24iLCAic3ViIjogIjQ0MTk2NyIsICJ1dHlwIjogMTAxfQ.NJLLVaJwkf_Vxq5Zhz2v1FncRSLkKkNg2YL56yUM-yEQ7xQZv_A6UqnEqh0xY272-nlt4m9aOlbaf1qu6MW89RuUVyLBRTDNCb_Caznvnz8cMJZEKiNUTEmxc0Z-THX90d5Xi6wqlE0NqBVNzIBnVhrGMW105N486t4On3_pus7E8-7WziedbkzANA9cejI5U6GXW1wSPG1x2kgUXB6kBkbtE5OwX466Xbna87QA3NNe6FdntoYqVX2hniawfRiBx-lJhbtdLS54TFF1iLD22ngCAGA0bAM3ANsqx-5MDrwVEqGic-lv10xLd5STFlZr0cilRMxpgf7Pm7z6oFCvuQ';
 
             fetch(apiUrl, {
