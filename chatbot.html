@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot - Content Creator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: #2a2a2a;
+            border-right: 1px solid #333;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .sidebar h2 {
+            font-size: 18px;
+            margin-bottom: 20px;
+            color: #fff;
+        }
+
+        .platform-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+
+        .platform-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .platform-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+        }
+
+        .facebook { background: #1877f2; }
+        .instagram { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        .google { background: #4285f4; }
+
+        .platform-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .platform-status {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .connect-btn {
+            background: transparent;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .connect-btn:hover {
+            background: #333;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #1a1a1a;
+        }
+
+        .header {
+            padding: 20px;
+            border-bottom: 1px solid #333;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header .subtitle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            font-size: 14px;
+        }
+
+        .ai-icon {
+            width: 16px;
+            height: 16px;
+            background: #00d4ff;
+            border-radius: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            padding-right: 10px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .message.user .message-avatar {
+            background: #00d4ff;
+        }
+
+        .message.bot .message-avatar {
+            background: #4a5568;
+        }
+
+        .message-content {
+            max-width: 70%;
+            background: #2a2a2a;
+            padding: 12px 16px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .message.user .message-content {
+            background: #00d4ff;
+            color: #000;
+        }
+
+        .image-preview {
+            margin-top: 12px;
+            border-radius: 8px;
+            overflow: hidden;
+            max-width: 300px;
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .image-preview-placeholder {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .post-preview {
+            background: #333;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 12px;
+            max-width: 400px;
+        }
+
+        .post-date {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .post-content {
+            font-size: 14px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .hashtags {
+            color: #00d4ff;
+            font-size: 13px;
+        }
+
+        .input-area {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-container {
+            flex: 1;
+            position: relative;
+        }
+
+        .chat-input {
+            width: 100%;
+            background: #2a2a2a;
+            border: 1px solid #333;
+            border-radius: 24px;
+            padding: 12px 50px 12px 16px;
+            color: #fff;
+            font-size: 14px;
+            resize: none;
+            min-height: 48px;
+            max-height: 120px;
+            font-family: inherit;
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .send-btn {
+            position: absolute;
+            right: 8px;
+            bottom: 8px;
+            background: #00d4ff;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .send-btn:hover {
+            background: #00b8e6;
+        }
+
+        .send-btn:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 4px;
+        }
+
+        .typing-dots span {
+            width: 4px;
+            height: 4px;
+            background: #888;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 80%, 100% { opacity: 0.3; }
+            40% { opacity: 1; }
+        }
+
+        .scrollbar-thin::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-track {
+            background: #2a2a2a;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 2px;
+        }
+
+        .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+            background: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h2>Publishing Platforms</h2>
+        
+        <div class="platform-item">
+            <div class="platform-info">
+                <div class="platform-icon facebook">f</div>
+                <div>
+                    <div class="platform-name">Facebook</div>
+                    <div class="platform-status">Not connected</div>
+                </div>
+            </div>
+            <button class="connect-btn">Connect</button>
+        </div>
+
+        <div class="platform-item">
+            <div class="platform-info">
+                <div class="platform-icon instagram">📷</div>
+                <div>
+                    <div class="platform-name">Instagram</div>
+                    <div class="platform-status">Not connected</div>
+                </div>
+            </div>
+            <button class="connect-btn">Connect</button>
+        </div>
+
+        <div class="platform-item">
+            <div class="platform-info">
+                <div class="platform-icon google">G</div>
+                <div>
+                    <div class="platform-name">Google My Business</div>
+                    <div class="platform-status">Not connected</div>
+                </div>
+            </div>
+            <button class="connect-btn">Connect</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1>AI Content Assistant</h1>
+            <div class="subtitle">
+                <div class="ai-icon">✨</div>
+                <span>Create engaging social media content with AI</span>
+            </div>
+        </div>
+
+        <div class="chat-container">
+            <div class="chat-messages scrollbar-thin" id="chatMessages">
+                <div class="message bot">
+                    <div class="message-avatar">AI</div>
+                    <div class="message-content">
+                        Hi! I'm your AI content assistant. I can help you create engaging social media posts with images. What kind of content would you like to create today?
+                    </div>
+                </div>
+                
+                <div class="message user">
+                    <div class="message-avatar">You</div>
+                    <div class="message-content">
+                        Create a post about personal branding for professionals
+                    </div>
+                </div>
+
+                <div class="message bot">
+                    <div class="message-avatar">AI</div>
+                    <div class="message-content">
+                        I've created a personal branding post for you! Here's the content with a professional image:
+                        
+                        <div class="post-preview">
+                            <div class="post-date">July 14, 2025</div>
+                            <div class="post-content">
+                                Ready to enhance your personal brand? 🌟 Building a strong professional presence takes strategy, consistency, and authentic storytelling. Don't wait to make your brand unforgettable—start today and take the first step in your branding journey! 💼✨
+                            </div>
+                            <div class="hashtags">
+                                #PersonalBrandingSuccess #InnovativeBranding #StandOutNow
+                            </div>
+                        </div>
+
+                        <div class="image-preview">
+                            <div class="image-preview-placeholder">
+                                📱 Professional branding image preview
+                                <br><br>
+                                Hands holding an orange speech bubble with "PERSONAL BRANDING" text, surrounded by colorful notes and creative workspace elements
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="typing-indicator" id="typingIndicator">
+                <span>AI is typing</span>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <div class="input-container">
+                    <textarea 
+                        class="chat-input" 
+                        id="chatInput"
+                        placeholder="Ask me to create social media content, generate images, or help with your marketing strategy..."
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 2L11 13"></path>
+                            <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const chatMessages = document.getElementById('chatMessages');
+        const typingIndicator = document.getElementById('typingIndicator');
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+            
+            sendBtn.disabled = !this.value.trim();
+        });
+
+        // Sample responses for demo
+        const sampleResponses = [
+            {
+                text: "I'll create a motivational fitness post for you!",
+                hasImage: true,
+                imageText: "🏋️ Fitness motivation image\n\nEnergetic workout scene with inspiring quotes about consistency and progress",
+                post: {
+                    date: "July 14, 2025",
+                    content: "Your only competition is who you were yesterday! 💪 Every workout, every healthy choice, every step forward is building the stronger, healthier version of yourself. Start where you are, use what you have, do what you can. #FitnessJourney #HealthyLifestyle #MotivationMonday",
+                    hashtags: "#FitnessMotivation #HealthyLiving #StrongMindset"
+                }
+            },
+            {
+                text: "Here's a professional LinkedIn post about productivity:",
+                hasImage: true,
+                imageText: "📊 Professional productivity graphic\n\nClean infographic showing time management tips and productivity statistics",
+                post: {
+                    date: "July 14, 2025",
+                    content: "The secret to productivity isn't working harder—it's working smarter. 🧠 Focus on your top 3 priorities each day, eliminate distractions, and remember that saying 'no' to good opportunities makes room for great ones.",
+                    hashtags: "#ProductivityTips #WorkSmarter #ProfessionalGrowth"
+                }
+            },
+            {
+                text: "I can help you create engaging content! What specific topic or industry would you like me to focus on? I can generate posts for fitness, business, technology, lifestyle, or any other niche.",
+                hasImage: false
+            }
+        ];
+
+        function addMessage(content, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">${isUser ? 'You' : 'AI'}</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function addBotResponseWithImage(response) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message bot';
+            
+            let content = response.text;
+            
+            if (response.post) {
+                content += `
+                    <div class="post-preview">
+                        <div class="post-date">${response.post.date}</div>
+                        <div class="post-content">${response.post.content}</div>
+                        <div class="hashtags">${response.post.hashtags}</div>
+                    </div>
+                `;
+            }
+            
+            if (response.hasImage) {
+                content += `
+                    <div class="image-preview">
+                        <div class="image-preview-placeholder">${response.imageText}</div>
+                    </div>
+                `;
+            }
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">AI</div>
+                <div class="message-content">${content}</div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping() {
+            typingIndicator.style.display = 'flex';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+
+        function sendMessage() {
+            const message = chatInput.value.trim();
+            if (!message) return;
+
+            addMessage(message, true);
+            chatInput.value = '';
+            chatInput.style.height = 'auto';
+            sendBtn.disabled = true;
+
+            showTyping();
+
+            // Simulate AI response
+            setTimeout(() => {
+                hideTyping();
+                const randomResponse = sampleResponses[Math.floor(Math.random() * sampleResponses.length)];
+                addBotResponseWithImage(randomResponse);
+            }, 1500);
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Connect button functionality
+        document.querySelectorAll('.connect-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                if (this.textContent === 'Connect') {
+                    this.textContent = 'Connected';
+                    this.style.background = '#00d4ff';
+                    this.style.color = '#000';
+                    this.previousElementSibling.querySelector('.platform-status').textContent = 'Connected';
+                } else {
+                    this.textContent = 'Connect';
+                    this.style.background = 'transparent';
+                    this.style.color = '#fff';
+                    this.previousElementSibling.querySelector('.platform-status').textContent = 'Not connected';
+                }
+            });
+        });
+
+        // Initialize
+        sendBtn.disabled = true;
+    </script>
+</body>
+</html>
