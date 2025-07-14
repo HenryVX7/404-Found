@@ -3,6 +3,29 @@ const chatInput = document.getElementById('chatInput');
         const chatMessages = document.getElementById('chatMessages');
         const typingIndicator = document.getElementById('typingIndicator');
 
+        // Simple conversation state array
+        let conversationState = [];
+
+        // Add message to conversation state
+        function addToConversationState(message, isUser = true) {
+            conversationState.push({
+                role: isUser ? 'user' : 'assistant',
+                content: message
+            });
+            
+            // Keep only last 10 messages to prevent context from getting too long
+            if (conversationState.length > 10) {
+                conversationState = conversationState.slice(-10);
+            }
+        }
+
+        // Get conversation context for API request
+        function getConversationContext() {
+            return conversationState.map(msg => 
+                `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`
+            ).join('\n');
+        }
+
         // Auto-resize textarea
         chatInput.addEventListener('input', function() {
             this.style.height = 'auto';
@@ -99,15 +122,25 @@ const chatInput = document.getElementById('chatInput');
             const message = chatInput.value.trim();
             if (!message) return;
 
+            // Add user message to UI and state
             addMessage(message, true);
+            addToConversationState(message, true);
+            
             chatInput.value = '';
             chatInput.style.height = 'auto';
             sendBtn.disabled = true;
 
             showTyping();
 
-            // Call GoDaddy CaaS API for AI response
+            // Get conversation context
+            const context = getConversationContext();
             
+            // Build enhanced prompt with context
+            const enhancedPrompt = context ? 
+                `Previous conversation:\n${context}\n\nCurrent message: ${message}\n\nPlease respond considering the conversation history.` : 
+                message;
+
+            // Call GoDaddy CaaS API for AI response
             const apiUrl = 'https://gdapicall.danktroopervx.workers.dev/';
             // const apiUrl = 'https://caas.api.godaddy.com/v1/prompts';
             const apiKey = 'sso-jwt eyJhbGciOiAiUlMyNTYiLCAia2lkIjogIjlPNmczbmpGcmcifQ.eyJhdXRoIjogImJhc2ljIiwgImZ0YyI6IDIsICJpYXQiOiAxNzUyNTMxNTAwLCAianRpIjogIjZsMkJJLWxxbmlHMkhWd19VbndfeEEiLCAidHlwIjogImpvbWF4IiwgInZhdCI6IDE3NTI1MzE1MDAsICJmYWN0b3JzIjogeyJrX2ZlZCI6IDE3NTI1MzE1MDAsICJwX29rdGEiOiAxNzUyNTMxNTAwfSwgImN0eCI6ICIiLCAiYWNjb3VudE5hbWUiOiAiaHBhY2hlY29hcmFnb24iLCAic3ViIjogIjQ0MTk2NyIsICJ1dHlwIjogMTAxfQ.NJLLVaJwkf_Vxq5Zhz2v1FncRSLkKkNg2YL56yUM-yEQ7xQZv_A6UqnEqh0xY272-nlt4m9aOlbaf1qu6MW89RuUVyLBRTDNCb_Caznvnz8cMJZEKiNUTEmxc0Z-THX90d5Xi6wqlE0NqBVNzIBnVhrGMW105N486t4On3_pus7E8-7WziedbkzANA9cejI5U6GXW1wSPG1x2kgUXB6kBkbtE5OwX466Xbna87QA3NNe6FdntoYqVX2hniawfRiBx-lJhbtdLS54TFF1iLD22ngCAGA0bAM3ANsqx-5MDrwVEqGic-lv10xLd5STFlZr0cilRMxpgf7Pm7z6oFCvuQ';
@@ -120,7 +153,7 @@ const chatInput = document.getElementById('chatInput');
                     'Authorization': apiKey
                 },
                 body: JSON.stringify({
-                    prompt: message,
+                    prompt: enhancedPrompt,
                     provider: 'openai_chat',
                     providerOptions: {
                         model: 'gpt-3.5-turbo'
@@ -130,20 +163,25 @@ const chatInput = document.getElementById('chatInput');
             .then(response => response.json())
             .then(data => {
                 hideTyping();
-                // The API returns the result in data.text
-                console.log(data)
+                const aiResponse = data.data.value || "Sorry, I couldn't generate a response.";
+                
                 addBotResponseWithImage({
-                    text: data.data.value || "Sorry, I couldn't generate a response.",
-                    // post: data.post,
-                    // hasImage: data.hasImage,
-                    // imageText: data.imageText
+                    text: aiResponse,
                 });
+                
+                // Add AI response to conversation state
+                addToConversationState(aiResponse, false);
             })
             .catch(error => {
                 hideTyping();
+                const errorMessage = "Sorry, there was an error contacting the AI service.";
+                
                 addBotResponseWithImage({
-                    text: "Sorry, there was an error contacting the AI service.",
+                    text: errorMessage,
                 });
+                
+                // Add error to conversation state
+                addToConversationState(errorMessage, false);
             });
         }
         sendBtn.addEventListener('click', sendMessage);
