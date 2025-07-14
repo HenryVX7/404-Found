@@ -4,11 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/chatbot.css">
+    <link rel="stylesheet" href="./styles/general.css">
+    <script src="general.js" defer></script>
     <title>AI Chatbot - Content Creator</title>
 
 </head>
 <body>
     <div class="sidebar">
+        <nav class="top-nav">
+            <a href="scrape.html">Scheduler</a>
+            <a href="chatbot.html">AI Chatbot</a>
+        </nav>
+
         <h2>Publishing Platforms</h2>
         
         <div class="platform-item">
@@ -247,23 +254,6 @@
                 e.preventDefault();
                 sendMessage();
             }
-        });
-
-        // Connect button functionality
-        document.querySelectorAll('.connect-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                if (this.textContent === 'Connect') {
-                    this.textContent = 'Connected';
-                    this.style.background = '#00d4ff';
-                    this.style.color = '#000';
-                    this.previousElementSibling.querySelector('.platform-status').textContent = 'Connected';
-                } else {
-                    this.textContent = 'Connect';
-                    this.style.background = 'transparent';
-                    this.style.color = '#fff';
-                    this.previousElementSibling.querySelector('.platform-status').textContent = 'Not connected';
-                }
-            });
         });
 
         // Initialize
