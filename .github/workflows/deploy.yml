@@ -1,0 +1,22 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Reset & pull latest changes
+        run: |
+          cd /home/runner/404
+          git reset --hard HEAD
+          git clean -fd
+          git pull origin main
+
+      - name: Reload NGINX
+        run: |
+          sudo /usr/bin/systemctl reload nginx
