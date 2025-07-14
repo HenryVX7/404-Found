@@ -5,52 +5,55 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./styles/chatbot.css">
     <link rel="stylesheet" href="./styles/general.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="general.js" defer></script>
+    <script src="chatbot.html" defer></script>
     <title>AI Chatbot - Content Creator</title>
 
 </head>
 <body>
     <div class="sidebar">
+        <img src="Assets/GoDaddy_LockUp_RGB_Teal.png" height="auto" width="250px">
         <nav class="top-nav">
-            <a href="scrape.html">Scheduler</a>
+            <a href="scheduler.html">Scheduler</a>
             <a href="chatbot.html">AI Chatbot</a>
         </nav>
 
         <h2>Publishing Platforms</h2>
-        
-        <div class="platform-item">
-            <div class="platform-info">
-                <div class="platform-icon facebook">f</div>
-                <div>
-                    <div class="platform-name">Facebook</div>
-                    <div class="platform-status">Not connected</div>
-                </div>
-            </div>
-            <button class="connect-btn">Connect</button>
-        </div>
 
-        <div class="platform-item">
-            <div class="platform-info">
-                <div class="platform-icon instagram">📷</div>
-                <div>
-                    <div class="platform-name">Instagram</div>
-                    <div class="platform-status">Not connected</div>
-                </div>
-            </div>
-            <button class="connect-btn">Connect</button>
-        </div>
+       <div class="platform-item">
+         <div class="platform-info">
+           <div><a href="#" class="fa fa-facebook"></a></div>
+           <div>
+             <div class="platform-name">Facebook</div>
+             <div class="platform-status">Not connected</div>
+           </div>
+         </div>
+         <button class="connect-btn">Connect</button>
+       </div>
 
-        <div class="platform-item">
-            <div class="platform-info">
-                <div class="platform-icon google">G</div>
-                <div>
-                    <div class="platform-name">Google My Business</div>
-                    <div class="platform-status">Not connected</div>
-                </div>
-            </div>
-            <button class="connect-btn">Connect</button>
-        </div>
-    </div>
+       <div class="platform-item">
+         <div class="platform-info">
+           <div><a href="#" class="fa fa-instagram"></a></div>
+           <div>
+             <div class="platform-name">Instagram</div>
+             <div class="platform-status">Not connected</div>
+           </div>
+         </div>
+         <button class="connect-btn">Connect</button>
+       </div>
+
+       <div class="platform-item">
+         <div class="platform-info">
+           <div><a href="#" class="fa fa-google"></a></div>
+           <div>
+             <div class="platform-name">Google My Business</div>
+             <div class="platform-status">Not connected</div>
+           </div>
+         </div>
+         <button class="connect-btn">Connect</button>
+       </div>
+     </div>
 
     <div class="main-content">
         <div class="header">
@@ -130,7 +133,7 @@
             </div>
         </div>
     </div>
-
+  
     <script>
         const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
