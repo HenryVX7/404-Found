@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GoSync Business</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="index.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <h1>GoSync Business</h1>
+        
+        <div class="tab-container">
+            <button class="tab active" onclick="showTab('business-info')">Business Info</button>
+            <button class="tab" onclick="showTab('platforms')">Platform Sync</button>
+            <button class="tab" onclick="showTab('social-media')">Social Media</button>
+            <button class="tab" onclick="showTab('content-generator')">Content Generator</button>
+        </div>
+
+        <!-- Business Info Tab -->
+        <div id="business-info" class="tab-content active">
+            <div class="business-info-display">
+                <h2>Current Business Information</h2>
+                <div id="business-display">
+                    <p style="color: #6c757d; font-style: italic;">Fill out the form below to see your business information here.</p>
+                </div>
+            </div>
+            
+            <div id="map-container" class="map-container" style="display: none;">
+                <h3>Business Location</h3>
+                <iframe id="google-map" class="map-iframe" 
+                        src="" 
+                        allowfullscreen="" 
+                        loading="lazy" 
+                        referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
+            </div>
+            
+            <form id="business-form">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="business-name">Business Name</label>
+                        <input type="text" id="business-name" placeholder="Your Business Name">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="business-type">Business Type</label>
+                        <select id="business-type">
+                            <option value="">Select Type</option>
+                            <option value="restaurant">Restaurant</option>
+                            <option value="retail">Retail Store</option>
+                            <option value="service">Service Provider</option>
+                            <option value="healthcare">Healthcare</option>
+                            <option value="automotive">Automotive</option>
+                            <option value="beauty">Beauty/Salon</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone" placeholder="(555) 123-4567">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="business@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="website">Website</label>
+                        <input type="url" id="website" placeholder="https://yourwebsite.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="address">Address</label>
+                        <input type="text" id="address" placeholder="123 Main St, City, State 12345">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Business Description</label>
+                    <textarea id="description" placeholder="Describe your business, services, and what makes you unique..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="hours">Business Hours</label>
+                    <textarea id="hours" placeholder="Mon-Fri: 9AM-6PM&#10;Sat: 10AM-4PM&#10;Sun: Closed"></textarea>
+                </div>
+                
+                <button type="submit" class="btn">Save Business Information</button>
+            </form>
+        </div>
+
+        <!-- Platform Sync Tab -->
+        <div id="platforms" class="tab-content">
+            <div class="success-message" id="sync-success">
+                Successfully updated your business information across all connected platforms!
+            </div>
+            
+            <div class="platforms-grid">
+                <div class="platform-card">
+                    <h3>
+                        <span class="icon google">G</span>
+                        Google My Business
+                    </h3>
+                    <p>Update your Google Maps listing, hours, and reviews</p>
+                    <div class="status disconnected">Not Connected</div>
+                    <button class="btn" onclick="connectPlatform('google')">Connect Google</button>
+                </div>
+                
+                <div class="platform-card">
+                    <h3>
+                        <span class="icon yelp">Y</span>
+                        Yelp
+                    </h3>
+                    <p>Manage your Yelp business profile and respond to reviews</p>
+                    <div class="status disconnected">Not Connected</div>
+                    <button class="btn" onclick="connectPlatform('yelp')">Connect Yelp</button>
+                </div>
+                
+                <div class="platform-card">
+                    <h3>
+                        <span class="icon facebook">F</span>
+                        Facebook
+                    </h3>
+                    <p>Update your Facebook business page information</p>
+                    <div class="status disconnected">Not Connected</div>
+                    <button class="btn" onclick="connectPlatform('facebook')">Connect Facebook</button>
+                </div>
+                
+                <div class="platform-card">
+                    <h3>
+                        <span class="icon instagram">I</span>
+                        Instagram
+                    </h3>
+                    <p>Sync your Instagram business profile</p>
+                    <div class="status disconnected">Not Connected</div>
+                    <button class="btn" onclick="connectPlatform('instagram')">Connect Instagram</button>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 30px;">
+                <button class="btn success" onclick="syncAllPlatforms()">🔄 Sync All Connected Platforms</button>
+            </div>
+        </div>
+
+        <!-- Social Media Tab -->
+        <div id="social-media" class="tab-content">
+            <div class="success-message" id="post-success">
+                Your social media posts have been scheduled successfully!
+            </div>
+            
+            <div class="social-post">
+                <h3>Quick Post Creator</h3>
+                <div class="form-group">
+                    <label for="post-type">Post Type</label>
+                    <select id="post-type" onchange="updatePostTemplate()">
+                        <option value="general">General Update</option>
+                        <option value="hours">Hours Change</option>
+                        <option value="holiday">Holiday Closure</option>
+                        <option value="promotion">Promotion/Sale</option>
+                        <option value="new-service">New Service/Product</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="post-content">Post Content</label>
+                    <textarea id="post-content" placeholder="Write your post content here..." onkeyup="updateCharacterCount()"></textarea>
+                    <div class="character-count">
+                        <span id="char-count">0</span> characters
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Select Platforms</label>
+                    <div>
+                        <label><input type="checkbox" id="post-facebook" checked> Facebook</label>
+                        <label><input type="checkbox" id="post-instagram" checked> Instagram</label>
+                        <label><input type="checkbox" id="post-twitter" checked> Twitter</label>
+                    </div>
+                </div>
+                
+                <div class="post-preview">
+                    <strong>Preview:</strong>
+                    <div id="post-preview-content">Your post will appear here...</div>
+                </div>
+                
+                <button class="btn" onclick="schedulePost()">Schedule Post</button>
+                <button class="btn secondary" onclick="postNow()">Post Now</button>
+            </div>
+        </div>
+
+        <!-- Content Generator Tab -->
+        <div id="content-generator" class="tab-content">
+            <div class="social-post">
+                <h3>AI Content Generator</h3>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="content-type">Content Type</label>
+                        <select id="content-type">
+                            <option value="holiday-closure">Holiday Closure</option>
+                            <option value="hours-change">Hours Change</option>
+                            <option value="weather-closure">Weather Closure</option>
+                            <option value="promotion">Promotion Announcement</option>
+                            <option value="new-product">New Product/Service</option>
+                            <option value="thank-you">Thank You Post</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="tone">Tone</label>
+                        <select id="tone">
+                            <option value="professional">Professional</option>
+                            <option value="friendly">Friendly</option>
+                            <option value="casual">Casual</option>
+                            <option value="apologetic">Apologetic</option>
+                            <option value="excited">Excited</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="specific-details">Specific Details</label>
+                    <textarea id="specific-details" placeholder="Enter specific details like dates, times, reasons, etc..."></textarea>
+                </div>
+                
+                <button class="btn" onclick="generateContent()">🤖 Generate Content</button>
+                
+                <div id="generated-content" class="post-preview" style="display: none;">
+                    <strong>Generated Content:</strong>
+                    <div id="generated-text"></div>
+                    <button class="btn" onclick="useGeneratedContent()">Use This Content</button>
+                    <button class="btn secondary" onclick="regenerateContent()">Generate Another</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Store business data
+        let businessData = {};
+        let connectedPlatforms = {};
+
+        // Tab switching
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            document.getElementById(tabId).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Business form handling
+        document.getElementById('business-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            businessData = {
+                name: document.getElementById('business-name').value,
+                type: document.getElementById('business-type').value,
+                phone: document.getElementById('phone').value,
+                email: document.getElementById('email').value,
+                website: document.getElementById('website').value,
+                address: document.getElementById('address').value,
+                description: document.getElementById('description').value,
+                hours: document.getElementById('hours').value
+            };
+            
+            updateBusinessDisplay();
+            showSuccessMessage('Business information saved successfully!');
+        });
+
+        function updateBusinessDisplay() {
+            const display = document.getElementById('business-display');
+            if (businessData.name) {
+                display.innerHTML = `
+                    <div class="info-item">
+                        <div class="info-label">Business Name:</div>
+                        <div>${businessData.name}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Type:</div>
+                        <div>${businessData.type}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Phone:</div>
+                        <div>${businessData.phone}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Email:</div>
+                        <div>${businessData.email}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Website:</div>
+                        <div>${businessData.website}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Address:</div>
+                        <div>${businessData.address}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Description:</div>
+                        <div>${businessData.description}</div>
+                    </div>
+                    <div class="info-item">
+                        <div class="info-label">Hours:</div>
+                        <div style="white-space: pre-line;">${businessData.hours}</div>
+                    </div>
+                `;
+                
+                // Update Google Maps iframe if address exists
+                if (businessData.address && businessData.address.trim()) {
+                    updateGoogleMap(businessData.address);
+                }
+            }
+        }
+
+        function updateGoogleMap(address) {
+            const encodedAddress = encodeURIComponent(address);
+            const mapUrl = `https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=${encodedAddress}`;
+            
+            // For demo purposes, we'll use the search URL without API key
+            const demoMapUrl = `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3048.4037384847976!2d-74.00601768463421!3d40.71278517932857!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89c25a316e809b3b%3A0x1c2b4b0e7b8c6c7d!2s${encodedAddress}!5e0!3m2!1sen!2sus!4v1234567890123!5m2!1sen!2sus`;
+            
+            // Use a generic search URL that works without API key
+            const searchMapUrl = `https://maps.google.com/maps?q=${encodedAddress}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+            
+            const mapFrame = document.getElementById('google-map');
+            mapFrame.src = searchMapUrl;
+            
+            // Show the map container
+            document.getElementById('map-container').style.display = 'block';
+        }
+
+        // Platform connection
+        function connectPlatform(platform) {
+            // Simulate connection process
+            setTimeout(() => {
+                connectedPlatforms[platform] = true;
+                const card = event.target.closest('.platform-card');
+                const status = card.querySelector('.status');
+                status.textContent = 'Connected';
+                status.classList.remove('disconnected');
+                status.classList.add('connected');
+                
+                event.target.textContent = 'Disconnect';
+                event.target.classList.add('danger');
+                event.target.onclick = () => disconnectPlatform(platform);
+                
+                showSuccessMessage(`Successfully connected to ${platform}!`);
+            }, 1000);
+        }
+
+        function disconnectPlatform(platform) {
+            connectedPlatforms[platform] = false;
+            const card = event.target.closest('.platform-card');
+            const status = card.querySelector('.status');
+            status.textContent = 'Not Connected';
+            status.classList.remove('connected');
+            status.classList.add('disconnected');
+            
+            event.target.textContent = `Connect ${platform.charAt(0).toUpperCase() + platform.slice(1)}`;
+            event.target.classList.remove('danger');
+            event.target.onclick = () => connectPlatform(platform);
+        }
+
+        function syncAllPlatforms() {
+            if (Object.keys(connectedPlatforms).length === 0) {
+                alert('Please connect at least one platform first!');
+                return;
+            }
+            
+            document.getElementById('sync-success').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('sync-success').style.display = 'none';
+            }, 5000);
+        }
+
+        // AI Post Generation from Prompt
+        async function generatePostFromPrompt() {
+            const prompt = document.getElementById('ai-prompt').value;
+            const postType = document.getElementById('post-type').value;
+            
+            if (!prompt.trim()) {
+                alert('Please enter a prompt for the AI to work with!');
+                return;
+            }
+            
+            // Show loading state
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = '⏳ Generating...';
+            button.disabled = true;
+            
+            try {
+                // Simulate API call to generate content
+                const generatedContent = await generateContentFromPrompt(prompt, postType);
+                
+                // Update the post content
+                document.getElementById('post-content').value = generatedContent;
+                updateCharacterCount();
+                
+                showSuccessMessage('AI post generated successfully!');
+                
+            } catch (error) {
+                console.error('Error generating content:', error);
+                alert('Sorry, there was an error generating your post. Please try again.');
+            } finally {
+                // Reset button
+                button.textContent = originalText;
+                button.disabled = false;
+            }
+        }
+        
+        // Simulate AI content generation API
+        async function generateContentFromPrompt(prompt, postType) {
+            // Simulate API delay
+            await new Promise(resolve => setTimeout(resolve, 1500));
+            
+            const businessName = businessData.name || 'Your Business';
+            
+            // Enhanced AI-style content generation based on prompt and business data
+            let generatedContent = '';
+            
+            // Analyze the prompt for key elements
+            const promptLower = prompt.toLowerCase();
+            
+            if (promptLower.includes('sale') || promptLower.includes('discount') || promptLower.includes('deal')) {
+                generatedContent = `🎯 Exciting News! ${businessName} is offering ${extractOfferDetails(prompt)}! Don't miss out on this amazing opportunity to save. Visit us today and see what deals await you! #Sale #Savings #${businessName.replace(/\s+/g, '')}`;
+            } else if (promptLower.includes('new') && (promptLower.includes('product') || promptLower.includes('service'))) {
+                generatedContent = `✨ We're thrilled to announce something new at ${businessName}! ${prompt} We can't wait for you to experience what we've been working on. Stop by and check it out! #NewArrival #Innovation #${businessName.replace(/\s+/g, '')}`;
+            } else if (promptLower.includes('closed') || promptLower.includes('holiday') || promptLower.includes('hours')) {
+                generatedContent = `📅 Important Update: ${prompt} We appreciate your understanding and look forward to serving you soon! Follow us for the latest updates. #BusinessUpdate #${businessName.replace(/\s+/g, '')}`;
+            } else if (promptLower.includes('thank') || promptLower.includes('appreciate') || promptLower.includes('grateful')) {
+                generatedContent = `💝 From all of us at ${businessName}: ${prompt} Your support means everything to us, and we're committed to continuing to provide you with the best experience possible! #ThankYou #Community #${businessName.replace(/\s+/g, '')}`;
+            } else if (promptLower.includes('event') || promptLower.includes('celebration') || promptLower.includes('party')) {
+                generatedContent = `🎉 You're invited! ${businessName} is excited to share: ${prompt} Join us for what's sure to be an amazing time. We hope to see you there! #Event #Community #${businessName.replace(/\s+/g, '')}`;
+            } else {
+                // General prompt handling
+                generatedContent = `Hey everyone! ${businessName} here with an update: ${prompt} We're always working to better serve our community, and we appreciate your continued support! #Update #${businessName.replace(/\s+/g, '')}`;
+            }
+            
+            // Add business-specific touches if we have the data
+            if (businessData.type) {
+                const businessTypeHashtag = businessData.type.charAt(0).toUpperCase() + businessData.type.slice(1);
+                generatedContent += ` #${businessTypeHashtag}`;
+            }
+            
+            return generatedContent;
+        }
+        
+        // Helper function to extract offer details from prompt
+        function extractOfferDetails(prompt) {
+            const percentMatch = prompt.match(/(\d+)%/);
+            const dollarMatch = prompt.match(/\$(\d+)/);
+            
+            if (percentMatch) {
+                return `${percentMatch[1]}% off select items`;
+            } else if (dollarMatch) {
+                return `${dollarMatch[1]} off your purchase`;
+            } else if (prompt.toLowerCase().includes('buy one get one') || prompt.toLowerCase().includes('bogo')) {
+                return 'Buy One Get One deals';
+            } else if (prompt.toLowerCase().includes('flash sale')) {
+                return 'flash sale pricing';
+            } else {
+                return 'special deals';
+            }
+        }
+        function updatePostTemplate() {
+            const type = document.getElementById('post-type').value;
+            const content = document.getElementById('post-content');
+            
+            const templates = {
+                'general': 'Hey everyone! We wanted to share an update with you...',
+                'hours': '📅 Hours Update: We\'ve updated our business hours. Please check our new schedule...',
+                'holiday': '🎉 Holiday Notice: We\'ll be closed for [Holiday Name] on [Date]. We\'ll reopen on [Date]. Thank you for your understanding!',
+                'promotion': '🎯 Special Offer: Don\'t miss out on our limited-time promotion...',
+                'new-service': '✨ Exciting News: We\'re thrilled to announce our new service/product...'
+            };
+            
+            content.value = templates[type] || templates['general'];
+            updateCharacterCount();
+        }
+
+        function updateCharacterCount() {
+            const content = document.getElementById('post-content').value;
+            document.getElementById('char-count').textContent = content.length;
+            
+            // Update preview
+            document.getElementById('post-preview-content').textContent = content || 'Your post will appear here...';
+        }
+
+        function schedulePost() {
+            const content = document.getElementById('post-content').value;
+            if (!content.trim()) {
+                alert('Please enter some content for your post!');
+                return;
+            }
+            
+            document.getElementById('post-success').style.display = 'block';
+            setTimeout(() => {
+                document.getElementById('post-success').style.display = 'none';
+            }, 5000);
+        }
+
+        function postNow() {
+            const content = document.getElementById('post-content').value;
+            if (!content.trim()) {
+                alert('Please enter some content for your post!');
+                return;
+            }
+            
+            showSuccessMessage('Your post has been published immediately!');
+        }
+
+        // Content generation
+        function generateContent() {
+            const contentType = document.getElementById('content-type').value;
+            const tone = document.getElementById('tone').value;
+            const details = document.getElementById('specific-details').value;
+            
+            // Simulate AI content generation
+            const generatedContent = generateContentBasedOnType(contentType, tone, details);
+            
+            document.getElementById('generated-text').textContent = generatedContent;
+            document.getElementById('generated-content').style.display = 'block';
+        }
+
+        function generateContentBasedOnType(type, tone, details) {
+            const businessName = businessData.name || 'Your Business';
+            
+            const templates = {
+                'holiday-closure': {
+                    'professional': `${businessName} will be closed on ${details || '[Holiday Date]'} in observance of the holiday. We will resume normal business operations on [Return Date]. Thank you for your understanding.`,
+                    'friendly': `Hey everyone! 🎉 We'll be taking a break on ${details || '[Holiday Date]'} to celebrate with our families. We'll be back and ready to serve you on [Return Date]! Have a wonderful holiday!`,
+                    'casual': `Heads up! We're closed ${details || '[Holiday Date]'} for the holiday. Back in action [Return Date]. Enjoy your day off too! 😊`
+                },
+                'hours-change': {
+                    'professional': `${businessName} has updated business hours. ${details || 'Please see our new schedule below.'} We appreciate your understanding during this transition.`,
+                    'friendly': `Hi friends! 📅 We've made some changes to our hours. ${details || 'Check out our new schedule!'} Thanks for rolling with the changes!`,
+                    'casual': `Hey! Quick update - we tweaked our hours. ${details || 'New times are...'} Hope this works better for everyone! 🕐`
+                },
+                'weather-closure': {
+                    'apologetic': `Due to severe weather conditions, ${businessName} will be closed today for the safety of our staff and customers. ${details || 'We will reopen as soon as conditions improve.'} Stay safe everyone!`,
+                    'professional': `${businessName} is temporarily closed due to inclement weather. ${details || 'We will monitor conditions and reopen when safe to do so.'} Thank you for your patience.`
+                }
+            };
+            
+            return templates[type]?.[tone] || templates[type]?.['professional'] || `Here's a custom message for your ${type} announcement. ${details}`;
+        }
+
+        function useGeneratedContent() {
+            const generatedText = document.getElementById('generated-text').textContent;
+            document.getElementById('post-content').value = generatedText;
+            updateCharacterCount();
+            showTab('social-media');
+        }
+
+        function regenerateContent() {
+            generateContent();
+        }
+
+        function showSuccessMessage(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            successDiv.style.position = 'fixed';
+            successDiv.style.top = '20px';
+            successDiv.style.right = '20px';
+            successDiv.style.zIndex = '1000';
+            successDiv.style.maxWidth = '300px';
+            
+            document.body.appendChild(successDiv);
+            
+            setTimeout(() => {
+                successDiv.remove();
+            }, 3000);
+        }
+
+        // Initialize character count
+        updateCharacterCount();
+    </script>
+</body>
+</html>
