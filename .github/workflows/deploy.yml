@@ -12,7 +12,7 @@ jobs:
     steps:
       - name: Reset & pull latest changes
         run: |
-          cd /home/runner/404
+          cd /home/runner/404-Found
           git reset --hard HEAD
           git clean -fd
           git pull origin main
