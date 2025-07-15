@@ -218,7 +218,7 @@ const chatInput = document.getElementById('chatInput');
 
             // Show typing indicator
             showTyping();
-
+            setTimeout(() => {}, 8000);
             fetch('https://gdapicall.danktroopervx.workers.dev/', {
                 method: 'POST',
                 headers: {
