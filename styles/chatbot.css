@@ -360,8 +360,8 @@
     .send-btn {
         width: 32px;
         height: 32px;
-        right: 4px;
-        bottom: 4px;
+        right: 1px;
+        bottom: -2px;
     }
 }
 
@@ -456,6 +456,10 @@
         font-size: 11px;
         min-height: 36px;
     }
+
+    textarea#chatinput {
+
+    }
 }
 
 @media (max-width: 480px) {
@@ -477,7 +481,7 @@
     }
     
     .chat-input {
-        font-size: 16px; /* Prevents zoom on iOS */
+        font-size: 12px; /* Prevents zoom on iOS */
     }
 }
 

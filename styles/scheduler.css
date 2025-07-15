@@ -1,3 +1,5 @@
+/* Sidebar (shared) */
+
 /* Main Content */
 .main-content {
     flex: 1;
@@ -41,6 +43,8 @@
     gap: 30px;
     margin-bottom: 20px;
     border-bottom: 1px solid #404040;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
 }
 
 .platform-tab {
@@ -52,6 +56,9 @@
     cursor: pointer;
     transition: color 0.3s ease;
     position: relative;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 80px;
 }
 
 .platform-tab.active {
@@ -128,6 +135,8 @@
     align-items: center;
     gap: 12px;
     cursor: pointer;
+    padding: 8px 0;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .radio-option input[type="radio"] {
@@ -138,6 +147,7 @@
     border-radius: 50%;
     position: relative;
     cursor: pointer;
+    flex-shrink: 0;
 }
 
 .radio-option input[type="radio"]:checked {
@@ -175,6 +185,8 @@
     font-size: 0.9rem;
     cursor: pointer;
     transition: all 0.2s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
 }
 
 .btn-secondary {
@@ -251,4 +263,317 @@
 /* Scrollbar (optional matching chatbot.css) */
 .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
-} */
+}
+
+/* Mobile Responsive Styles */
+
+/* Tablet (768px and below) */
+@media (max-width: 768px) {
+    .header {
+        padding: 15px;
+    }
+    
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .chat-container {
+        padding: 15px;
+    }
+    
+    .platform-tabs {
+        gap: 20px;
+        padding-bottom: 5px;
+    }
+    
+    .platform-tab {
+        font-size: 0.9rem;
+        min-width: 70px;
+    }
+    
+    .post-section {
+        padding: 15px;
+    }
+    
+    .post-container {
+        gap: 15px;
+    }
+    
+    .profile-pic {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .post-image {
+        max-width: 100%;
+        height: 150px;
+    }
+    
+    .publish-options {
+        padding: 15px;
+    }
+    
+    .action-buttons {
+        gap: 10px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+    
+    .connections-panel {
+        padding: 15px;
+    }
+    
+    .connection-item {
+        padding: 12px 0;
+    }
+    
+    .connection-info {
+        gap: 12px;
+    }
+}
+
+/* Mobile (480px and below) */
+@media (max-width: 480px) {
+    .header {
+        padding: 12px;
+    }
+    
+    .header h1 {
+        font-size: 1.3rem;
+    }
+    
+    .header p {
+        font-size: 13px;
+    }
+    
+    .chat-container {
+        padding: 12px;
+    }
+    
+    .platform-tabs {
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .platform-tab {
+        font-size: 0.85rem;
+        min-width: 60px;
+        padding: 0 0 12px 0;
+    }
+    
+    .post-section {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .post-container {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .profile-pic {
+        width: 35px;
+        height: 35px;
+        align-self: flex-start;
+    }
+    
+    .post-text {
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .post-image {
+        height: 120px;
+        margin-top: 8px;
+    }
+    
+    .publish-options {
+        padding: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .radio-group {
+        gap: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .radio-option {
+        gap: 10px;
+        padding: 6px 0;
+    }
+    
+    .radio-option label {
+        font-size: 0.9rem;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+        width: 100%;
+        text-align: center;
+    }
+    
+    .connections-panel {
+        padding: 12px;
+    }
+    
+    .connection-item {
+        padding: 10px 0;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .connection-info {
+        gap: 10px;
+        width: 100%;
+    }
+    
+    .connection-details h3 {
+        font-size: 0.9rem;
+    }
+    
+    .connection-status {
+        font-size: 0.8rem;
+    }
+    
+    .connect-notice {
+        padding: 12px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Very small mobile (320px and below) */
+@media (max-width: 320px) {
+    .header {
+        padding: 10px;
+    }
+    
+    .header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .chat-container {
+        padding: 10px;
+    }
+    
+    .platform-tabs {
+        gap: 10px;
+    }
+    
+    .platform-tab {
+        font-size: 0.8rem;
+        min-width: 50px;
+    }
+    
+    .post-section {
+        padding: 10px;
+    }
+    
+    .post-container {
+        gap: 10px;
+    }
+    
+    .profile-pic {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .post-text {
+        font-size: 0.85rem;
+    }
+    
+    .post-image {
+        height: 100px;
+    }
+    
+    .publish-options {
+        padding: 10px;
+    }
+    
+    .radio-group {
+        gap: 10px;
+    }
+    
+    .radio-option {
+        gap: 8px;
+    }
+    
+    .radio-option label {
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
+    .connections-panel {
+        padding: 10px;
+    }
+}
+
+/* Touch-friendly improvements */
+@media (hover: none) and (pointer: coarse) {
+    .platform-tab {
+        padding: 8px 0 15px 0;
+    }
+    
+    .radio-option {
+        padding: 12px 0;
+    }
+    
+    .radio-option input[type="radio"] {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .radio-option input[type="radio"]:checked::after {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .btn {
+        padding: 14px 24px;
+        min-height: 48px;
+    }
+    
+    .connection-item {
+        padding: 16px 0;
+    }
+}
+
+/* Landscape orientation adjustments */
+@media (orientation: landscape) and (max-height: 500px) {
+    .header {
+        padding: 10px 20px;
+    }
+    
+    .header h1 {
+        font-size: 1.2rem;
+    }
+    
+    .chat-container {
+        padding: 10px 20px;
+    }
+    
+    .post-section {
+        padding: 15px;
+    }
+    
+    .post-image {
+        height: 100px;
+    }
+    
+    .publish-options {
+        padding: 15px;
+    }
+}

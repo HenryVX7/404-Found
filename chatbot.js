@@ -105,7 +105,7 @@ function addMessage(content, isUser = false) {
     messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
     
     messageDiv.innerHTML = `
-        <div class="message-avatar">${isUser ? 'You' : 'AI'}</div>
+        <div class="message-avatar">${isUser ? '' : 'AI'}</div>
         <div class="message-content">${content}</div>
     `;
     
