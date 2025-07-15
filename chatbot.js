@@ -218,7 +218,7 @@ const chatInput = document.getElementById('chatInput');
 
             // Show typing indicator
             showTyping();
-            setTimeout(() => {}, 8000);
+            setTimeout(() => {
             fetch('https://gdapicall.danktroopervx.workers.dev/', {
                 method: 'POST',
                 headers: {
@@ -268,7 +268,7 @@ const chatInput = document.getElementById('chatInput');
                     text: errorMessage
                 });
                 addToConversationState(errorMessage, false);
-            });
+            });}, 8000);
         }
     });
 
