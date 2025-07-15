@@ -278,3 +278,8 @@ const chatInput = document.getElementById('chatInput');
 
         // Initialize
         sendBtn.disabled = true;
+
+//         const body = {
+//   prompt: chatInput.value.trim(),
+//   image: selectedImageDataURL || null // Use data URL or image upload logic
+// };
