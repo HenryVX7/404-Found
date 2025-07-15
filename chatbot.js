@@ -212,7 +212,7 @@ const chatInput = document.getElementById('chatInput');
         });
 
         document.addEventListener('click', function(event) {
-            if (event.target && event.target.id === 'createImageBtn') {
+            if (event.target && event.target.id === 'create-image-btn') {
             // Prepare the prompt for image generation based on conversation context
             const imagePrompt = getConversationContext() + "\nPlease generate a social media image based on the above conversation.";
 
