@@ -106,6 +106,7 @@ const chatInput = document.getElementById('chatInput');
                 content += `
                     <div class="image-preview">
                         <div class="image-preview-placeholder">${response.imageText}</div>
+                        <img src="${response.imageUrl}" alt="Image Preview">
                     </div>
                 `;
             }
@@ -114,7 +115,7 @@ const chatInput = document.getElementById('chatInput');
                 <div class="message-avatar">AI</div>
                     <div class="message-content-container">
                     <div class="message-content">
-                        Hi! I'm your AI content assistant. I can help you create engaging social media posts with images. What kind of content would you like to create today?
+                        ${content}
                     </div>
                     <div class="create-image-video-container">
                     <div id="create-image-btn">Create Image</div>
@@ -278,7 +279,6 @@ const chatInput = document.getElementById('chatInput');
 
         // Initialize
         sendBtn.disabled = true;
-
 //         const body = {
 //   prompt: chatInput.value.trim(),
 //   image: selectedImageDataURL || null // Use data URL or image upload logic
