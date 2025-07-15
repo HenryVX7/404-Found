@@ -2,6 +2,9 @@ const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatMessages = document.getElementById('chatMessages');
         const typingIndicator = document.getElementById('typingIndicator');
+        const createImageBtn = document.getElementById('createImageBtn');
+        const createVideoBtn = document.getElementById('createVideoBtn');
+        const messageBot = document.getElementsByClassName('messageBot');
 
         // Simple conversation state array with initial system instruction
         let conversationState = [
@@ -100,17 +103,25 @@ const chatInput = document.getElementById('chatInput');
             //     `;
             // }
 
-            // if (response.hasImage) {
-            //     content += `
-            //         <div class="image-preview">
-            //             <div class="image-preview-placeholder">${response.imageText}</div>
-            //         </div>
-            //     `;
-            // }
+            if (response.hasImage) {
+                content += `
+                    <div class="image-preview">
+                        <div class="image-preview-placeholder">${response.imageText}</div>
+                    </div>
+                `;
+            }
 
             messageDiv.innerHTML = `
                 <div class="message-avatar">AI</div>
-                <div class="message-content">${content}</div>
+                    <div class="message-content-container">
+                    <div class="message-content">
+                        Hi! I'm your AI content assistant. I can help you create engaging social media posts with images. What kind of content would you like to create today?
+                    </div>
+                    <div class="create-image-video-container">
+                    <div id="create-image-btn">Create Image</div>
+                    <div id="create-video-btn">Create Video</div>
+                    </div>
+                </div>
             `;
 
             chatMessages.appendChild(messageDiv);
@@ -174,6 +185,7 @@ const chatInput = document.getElementById('chatInput');
                 
                 addBotResponseWithImage({
                     text: aiResponse,
+                    hasImage: false
                 });
                 
                 // Add AI response to conversation state
@@ -198,6 +210,69 @@ const chatInput = document.getElementById('chatInput');
                 e.preventDefault();
                 sendMessage();
             }
+        });
+
+        createImageBtn.addEventListener('click', function() {
+        // Prepare the prompt for image generation based on conversation context
+        const imagePrompt = getConversationContext() + "\nPlease generate a social media image based on the above conversation.";
+
+        // Show typing indicator
+        showTyping();
+
+        fetch('https://gdapicall.danktroopervx.workers.dev/', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json',
+                // 'Authorization': apiKey
+            },
+            body: JSON.stringify({
+                prompt: imagePrompt,
+                provider: 'openai_image',
+                providerOptions: {
+                    model: 'dall-e-2'
+                }
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideTyping();
+            // Check if image was created and get the image URL
+            let imageUrl = null;
+            let aiText = "Here's your generated image!";
+            if (data && data.data && data.data.value) {
+                if (typeof data.data.value === 'object' && data.data.value.cdn) {
+                    imageUrl = data.data.value.cdn;
+                }
+                // If there's a text description, use it
+                if (data.data.value.text) {
+                    aiText = data.data.value.text;
+                }
+            } else {
+                aiText = "Sorry, I couldn't generate an image.";
+            }
+
+            addBotResponseWithImage({
+                text: aiText,
+                imageUrl: imageUrl,
+                hasImage: true
+            });
+
+            // Add AI response to conversation state
+            addToConversationState(aiText, false);
+        })
+        .catch(error => {
+            hideTyping();
+            const errorMessage = "Sorry, there was an error generating the image.";
+            addBotResponseWithImage({
+                text: errorMessage
+            });
+            addToConversationState(errorMessage, false);
+        });
+        });
+
+        createVideoBtn.addEventListener('click', function() {
+            console.log('Create Video');
         });
 
         // Initialize

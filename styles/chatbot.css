@@ -215,3 +215,23 @@
 .scrollbar-thin::-webkit-scrollbar {
     width: 4px;
 }
+
+.create-image-video-container {
+    margin-top: 12px;
+    display: flex;
+    gap: 12px;
+}
+
+#create-image-btn, #create-video-btn {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+#create-image-btn:hover, #create-video-btn:hover {
+    background: #00b8e6;
+}
