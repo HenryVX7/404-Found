@@ -456,10 +456,6 @@
         font-size: 11px;
         min-height: 36px;
     }
-
-    textarea#chatinput {
-
-    }
 }
 
 @media (max-width: 480px) {
