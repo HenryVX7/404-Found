@@ -242,7 +242,7 @@ document.addEventListener('click', function(event) {
                 providerOptions: {
                     model: 'dall-e-2', // or 'dall-e-3' if available
                     size: '1024x1024', // Optional: specify image size
-                    quality: 'standard' // Optional: specify quality
+                    //quality: 'standard' Optional: specify quality
                 }
             })
         })
