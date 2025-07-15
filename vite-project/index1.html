@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <link rel="stylesheet" href="./styles/scrape.css">
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+
+    <script src="modules" src ="/src/main.jsx"></script>
+    <script src="scrape.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>All your posts in one place.</h1>
+        </div>
+
+        <div class="main-content">
+            <div class="left-column">
+                <div class="post-section">
+                    <div class="platform-tabs">
+                        <button class="platform-tab active" data-platform="facebook">Facebook</button>
+                        <button class="platform-tab" data-platform="instagram">Instagram</button>
+                        <button class="platform-tab" data-platform="google">Google</button>
+                        <button class="platform-tab" data-platform="linkedin">Linkedin</button>
+                        <button class="platform-tab" data-platform="tiktok">TikTok</button>
+                    </div>
+
+                    <div class="post-container">
+                        <div class="profile-pic"></div>
+                        <div class="post-content">
+                            <div class="post-date">
+                                <span class="calendar-icon">📅</span>
+                                July 14, 2025
+                            </div>
+                            <div class="post-text">
+                                Ready to enhance your personal brand? 🌟 Joel Hudgens' website offers tailored strategies and expert insights to help you stand out in your industry. Don't wait to make your brand unforgettable—visit today and take the first step in your branding journey! 💻✨
+                                <div class="hashtags">
+                                    #PersonalBrandingSuccess #InnovativeBranding #StandOutNow
+                                </div>
+                            </div>
+                            <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDQwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMjAwIiBmaWxsPSIjZjBmMGYwIi8+CjxyZWN0IHg9IjE1MCIgeT0iNzAiIHdpZHRoPSIxMDAiIGhlaWdodD0iNjAiIHJ4PSI4IiBmaWxsPSIjZmY5NTAwIi8+Cjx0ZXh0IHg9IjE3MCIgeT0iOTAiIGZpbGw9IiMwMDAiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZm9udC13ZWlnaHQ9ImJvbGQiPlBFUlNPTkFMPC90ZXh0Pgo8dGV4dCB4PSIxNzAiIHk9IjEwNSIgZmlsbD0iIzAwMCIgZm9udC1mYW1pbHk9IkFyaWFsIiBmb250LXNpemU9IjEyIiBmb250LXdlaWdodD0iYm9sZCI+QlJBTkRJTkc8L3RleHQ+CjxyZWN0IHg9IjUwIiB5PSIxNDAiIHdpZHRoPSIzMDAiIGhlaWdodD0iNDAiIGZpbGw9IiNlMGUwZTAiLz4KPGNpcmNsZSBjeD0iMTAwIiBjeT0iNDAiIHI9IjIwIiBmaWxsPSIjZmZiNWJhIi8+CjxyZWN0IHg9IjIwIiB5PSIxNjAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iIzAwZDRmZiIvPgo8cmVjdCB4PSI4MCIgeT0iMTYwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiNmZjk1MDAiLz4KPHJlY3QgeD0iMTQwIiB5PSIxNjAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iIzlkNGVkZCIvPgo8cmVjdCB4PSIyMDAiIHk9IjE2MCIgd2lkdGg9IjMwIiBoZWlnaHQ9IjMwIiBmaWxsPSIjZmY2YjQ3Ii8+CjxyZWN0IHg9IjI2MCIgeT0iMTYwIiB3aWR0aD0iMzAiIGhlaWdodD0iMzAiIGZpbGw9IiNmZmQzMzMiLz4KPHJlY3QgeD0iMzIwIiB5PSIxNjAiIHdpZHRoPSIzMCIgaGVpZ2h0PSIzMCIgZmlsbD0iIzMzZmY1NyIvPgo8L3N2Zz4=" alt="Personal Branding" class="post-image">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="publish-options">
+                    <div class="radio-group">
+                        <div class="radio-option">
+                            <input type="radio" id="publish-now" name="publish-option" value="now" checked>
+                            <label for="publish-now">Publish now</label>
+                        </div>
+                        <div class="radio-option">
+                            <input type="radio" id="schedule-later" name="publish-option" value="later">
+                            <label for="schedule-later">Schedule for later</label>
+                        </div>
+                    </div>
+
+                    <div class="action-buttons">
+                        <button class="btn btn-secondary">Edit Post</button>
+                        <button class="btn btn-primary" id="publish-btn">Publish</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="connections-panel">
+                <div class="connect-notice">
+                    📱 Connect an account to publish or schedule this post
+                </div>
+
+                <div class="connection-item">
+                    <div class="connection-info">
+                        <div class="platform-icon">f</div>
+                        <div class="connection-details">
+                            <h3>Facebook</h3>
+                            <p class="connection-status">Not connected</p>
+                        </div>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+
+                <div class="connection-item">
+                    <div class="connection-info">
+                        <div class="platform-icon">📷</div>
+                        <div class="connection-details">
+                            <h3>Instagram</h3>
+                            <p class="connection-status">Not connected</p>
+                        </div>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+
+                <div class="connection-item">
+                    <div class="connection-info">
+                        <div class="platform-icon">G</div>
+                        <div class="connection-details">
+                            <h3>Google My Business</h3>
+                            <p class="connection-status">Not connected</p>
+                        </div>
+                    </div>
+                    <button class="connect-btn">Connect</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

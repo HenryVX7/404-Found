@@ -1,48 +1,37 @@
-// Platform tab switching
-const platformTabs = document.querySelectorAll('.platform-tab');
+
+document.querySelectorAll('.platform-tab').forEach(tab =>
+  tab.addEventListener('click', () => {
+    document
+      .querySelectorAll('.platform-tab')
+      .forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+  })
+);
+
 const publishBtn = document.getElementById('publish-btn');
-const publishOptions = document.querySelectorAll('input[name="publish-option"]');
+document
+  .querySelectorAll('input[name="publish-option"]')
+  .forEach(opt =>
+    opt.addEventListener('change', () =>
+      (publishBtn.textContent =
+        opt.value === 'now' ? 'Publish' : 'Schedule'))
+  );
 
-platformTabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-        platformTabs.forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-    });
-});
+publishBtn.addEventListener('click', () =>
+  requireConnection(() => {
+    const selected =
+      document.querySelector('input[name="publish-option"]:checked').value;
+    const platform =
+      document.querySelector('.platform-tab.active').textContent;
 
-// Connect button interactions
-const connectBtns = document.querySelectorAll('.connect-btn');
-connectBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        const platform = e.target.closest('.connection-item').querySelector('h3').textContent;
-        alert(`Connecting to ${platform}...`);
-    });
-});
+    alert(
+      selected === 'now'
+        ? `Publishing to ${platform} now!`
+        : `Scheduling post for ${platform}…`
+    );
+  })
+);
 
-// Publish button functionality
-publishBtn.addEventListener('click', () => {
-    const selectedOption = document.querySelector('input[name="publish-option"]:checked').value;
-    const activePlatform = document.querySelector('.platform-tab.active').textContent;
-    
-    if (selectedOption === 'now') {
-        alert(`Publishing to ${activePlatform} now!`);
-    } else {
-        alert(`Scheduling post for ${activePlatform}...`);
-    }
-});
-
-// Radio button change handler
-publishOptions.forEach(option => {
-    option.addEventListener('change', (e) => {
-        if (e.target.value === 'now') {
-            publishBtn.textContent = 'Publish';
-        } else {
-            publishBtn.textContent = 'Schedule';
-        }
-    });
-});
-
-// Edit post button
-document.querySelector('.btn-secondary').addEventListener('click', () => {
-    alert('Opening post editor...');
-});
+document
+  .querySelector('.btn-secondary')
+  .addEventListener('click', () => alert('Opening post editor…'));
