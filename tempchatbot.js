@@ -93,72 +93,6 @@ Create the image prompt:`;
     }
 }
 
-// Create optimized video generation prompt using AI
-async function createVideoPrompt() {
-    const fullContext = getConversationContext();
-    
-    // Create a prompt for the AI to summarize the conversation into a video generation prompt
-    const summarizationPrompt = `Based on this conversation, create a concise video generation prompt (under 900 characters) that captures:
-1. The specific type of video needed (social media post, announcement, product demo, etc.)
-2. Visual style and mood (professional, casual, energetic, calm, etc.)
-3. Key visual elements and scenes
-4. Movement and actions that should occur
-5. Brand/business context
-6. Platform requirements (Instagram Reels, Facebook, TikTok, etc.)
-
-Make it detailed enough for Nova Reel to create an engaging social media video with clear visual storytelling.
-
-Conversation:
-${fullContext}
-
-Create the video prompt:`;
-
-    try {
-        const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                prompt: summarizationPrompt,
-                provider: 'openai_chat',
-                providerOptions: {
-                    model: 'gpt-3.5-turbo',
-                    max_tokens: 200
-                }
-            })
-        });
-        
-        const data = await response.json();
-        let videoPrompt = data.data.value || "Create a professional social media video with engaging visuals and clear messaging.";
-        
-        // Ensure it's under 900 characters
-        if (videoPrompt.length > 900) {
-            videoPrompt = videoPrompt.substring(0, 897) + "...";
-        }
-        
-        console.log('Generated video prompt:', videoPrompt);
-        console.log('Video prompt length:', videoPrompt.length);
-        
-        return videoPrompt;
-        
-    } catch (error) {
-        console.error('Error creating video prompt:', error);
-        
-        // Fallback: create a simple prompt from recent messages
-        const recentMessages = conversationState
-            .filter(msg => msg.role !== 'system')
-            .slice(-4)
-            .map(msg => msg.content)
-            .join(' ');
-        
-        const fallbackPrompt = `Create a professional social media video based on: ${recentMessages}. Use engaging visuals, smooth transitions, and modern style.`;
-        
-        return fallbackPrompt.length > 900 ? fallbackPrompt.substring(0, 897) + "..." : fallbackPrompt;
-    }
-}
-
 // Auto-resize textarea
 chatInput.addEventListener('input', function() {
     this.style.height = 'auto';
@@ -179,7 +113,7 @@ function addMessage(content, isUser = false) {
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
-function addBotResponseWithMedia(response) {
+function addBotResponseWithImage(response) {
     const messageDiv = document.createElement('div');
     messageDiv.className = 'message bot';
 
@@ -189,17 +123,6 @@ function addBotResponseWithMedia(response) {
         content += `
             <div class="image-preview">
                 <img src="${response.imageUrl}" alt="Image Preview">
-            </div>
-        `;
-    }
-
-    if (response.hasVideo) {
-        content += `
-            <div class="video-preview">
-                <video controls width="100%" style="max-width: 400px; border-radius: 8px;">
-                    <source src="${response.videoUrl}" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
             </div>
         `;
     }
@@ -272,10 +195,9 @@ async function sendMessage() {
         hideTyping();
         const aiResponse = data.data.value || "Sorry, I couldn't generate a response.";
         
-        addBotResponseWithMedia({
+        addBotResponseWithImage({
             text: aiResponse,
-            hasImage: false,
-            hasVideo: false
+            hasImage: false
         });
         
         // Add AI response to conversation state
@@ -286,10 +208,8 @@ async function sendMessage() {
         console.error('Error sending message:', error);
         const errorMessage = "Sorry, there was an error contacting the AI service.";
         
-        addBotResponseWithMedia({
+        addBotResponseWithImage({
             text: errorMessage,
-            hasImage: false,
-            hasVideo: false
         });
         
         addToConversationState(errorMessage, false);
@@ -327,7 +247,7 @@ document.addEventListener('click', async function(event) {
                     prompt: optimizedPrompt,
                     provider: 'openai_image',
                     providerOptions: {
-                        model: 'dall-e-2',
+                        model: 'dall-e-3',
                         size: '1024x1024'
                     }
                 })
@@ -357,17 +277,15 @@ document.addEventListener('click', async function(event) {
             if (!imageUrl) {
                 console.error('No image URL found in response:', data);
                 aiText = "Sorry, I couldn't generate an image. Please try again.";
-                addBotResponseWithMedia({
+                addBotResponseWithImage({
                     text: aiText,
-                    hasImage: false,
-                    hasVideo: false
+                    hasImage: false
                 });
             } else {
-                addBotResponseWithMedia({
+                addBotResponseWithImage({
                     text: aiText,
                     imageUrl: imageUrl,
-                    hasImage: true,
-                    hasVideo: false
+                    hasImage: true
                 });
             }
             
@@ -378,95 +296,22 @@ document.addEventListener('click', async function(event) {
             console.error('Image generation error:', error);
             hideTyping();
             const errorMessage = "Sorry, there was an error generating the image. Please try again.";
-            addBotResponseWithMedia({
+            addBotResponseWithImage({
                 text: errorMessage,
-                hasImage: false,
-                hasVideo: false
+                hasImage: false
             });
             addToConversationState(errorMessage, false);
         }
     }
 });
 
-// Enhanced video generation with AI-optimized prompts
-document.addEventListener('click', async function(event) {
+// Video generation placeholder
+document.addEventListener('click', function(event) {
     if (event.target && event.target.id === 'create-video-btn') {
-        showTyping();
-        
-        try {
-            // First, create an optimized video prompt using AI
-            const optimizedPrompt = await createVideoPrompt();
-            
-            console.log('Using optimized prompt for video generation');
-            
-            // Then use that optimized prompt for video generation
-            const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json',
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    prompt: optimizedPrompt,
-                    provider: 'aws_video',
-                    providerOptions: {
-                        model: 'nova-reel-v1:0'
-                    }
-                })
-            });
-            
-            const data = await response.json();
-            console.log('Video API response:', data);
-            hideTyping();
-            
-            let videoUrl = null;
-            let aiText = "Here's your generated video based on our conversation!";
-            
-            // Handle different possible response structures
-            if (data && data.data) {
-                if (typeof data.data.value === 'string') {
-                    videoUrl = data.data.value;
-                } else if (data.data.value && data.data.value.url) {
-                    videoUrl = data.data.value.url;
-                } else if (data.data.value && data.data.value.cdn) {
-                    videoUrl = data.data.value.cdn;
-                } else if (data.data.url) {
-                    videoUrl = data.data.url;
-                }
-            }
-            
-            // Handle success/error cases
-            if (!videoUrl) {
-                console.error('No video URL found in response:', data);
-                aiText = "Sorry, I couldn't generate a video. Please try again.";
-                addBotResponseWithMedia({
-                    text: aiText,
-                    hasImage: false,
-                    hasVideo: false
-                });
-            } else {
-                addBotResponseWithMedia({
-                    text: aiText,
-                    videoUrl: videoUrl,
-                    hasImage: false,
-                    hasVideo: true
-                });
-            }
-            
-            // Add AI response to conversation state
-            addToConversationState(aiText, false);
-            
-        } catch (error) {
-            console.error('Video generation error:', error);
-            hideTyping();
-            const errorMessage = "Sorry, there was an error generating the video. Please try again.";
-            addBotResponseWithMedia({
-                text: errorMessage,
-                hasImage: false,
-                hasVideo: false
-            });
-            addToConversationState(errorMessage, false);
-        }
+        addBotResponseWithImage({
+            text: "Video generation feature coming soon! For now, I can help you create engaging images for your social media content.",
+            hasImage: false
+        });
     }
 });
 
@@ -483,11 +328,5 @@ window.debugConversation = function() {
 window.testImagePrompt = async function() {
     const prompt = await createImagePrompt();
     console.log('Test image prompt:', prompt);
-    console.log('Length:', prompt.length);
-};
-
-window.testVideoPrompt = async function() {
-    const prompt = await createVideoPrompt();
-    console.log('Test video prompt:', prompt);
     console.log('Length:', prompt.length);
 };
