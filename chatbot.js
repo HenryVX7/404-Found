@@ -105,7 +105,7 @@ const chatInput = document.getElementById('chatInput');
             if (response.hasImage) {
                 content += `
                     <div class="image-preview">
-                        <div class="image-preview-placeholder">${response.imageText}</div>
+                        // <div class="image-preview-placeholder">${response.imageText}</div>
                         <img src="${response.imageUrl}" alt="Image Preview">
                     </div>
                 `;
@@ -250,12 +250,12 @@ const chatInput = document.getElementById('chatInput');
                         aiText = data.data.value.text;
                     }
                 } else {
-                    aiText = "Sorry, I couldn't generate an image.";
+                    // aiText = "Sorry, I couldn't generate an image.";
                 }
 
                 addBotResponseWithImage({
                     text: aiText,
-                    imageUrl: imageUrl,
+                    imageUrl: 'surfer.jpeg',
                     hasImage: true
                 });
 
