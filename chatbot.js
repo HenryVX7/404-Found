@@ -105,7 +105,6 @@ const chatInput = document.getElementById('chatInput');
             if (response.hasImage) {
                 content += `
                     <div class="image-preview">
-                        // <div class="image-preview-placeholder">${response.imageText}</div>
                         <img src="${response.imageUrl}" alt="Image Preview">
                     </div>
                 `;
