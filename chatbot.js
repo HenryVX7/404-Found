@@ -211,66 +211,162 @@ const chatInput = document.getElementById('chatInput');
             }
         });
 
-        document.addEventListener('click', function(event) {
-            if (event.target && event.target.id === 'create-image-btn') {
-            // Prepare the prompt for image generation based on conversation context
-            const imagePrompt = getConversationContext() + "\nPlease generate a social media image based on the above conversation.";
-
-            // Show typing indicator
-            showTyping();
-            setTimeout(() => {
-            fetch('https://gdapicall.danktroopervx.workers.dev/', {
-                method: 'POST',
-                headers: {
-                    'accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    // 'Authorization': apiKey
-                },
-                body: JSON.stringify({
-                    prompt: imagePrompt,
-                    provider: 'openai_image',
-                    providerOptions: {
-                        model: 'dall-e-2'
-                    }
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideTyping();
-                // Check if image was created and get the image URL
-                let imageUrl = null;
-                let aiText = "Here's your generated image!";
-                if (data && data.data && data.data.value) {
-                    if (typeof data.data.value === 'object' && data.data.value.cdn) {
-                        imageUrl = data.data.value.cdn;
-                    }
-                    // If there's a text description, use it
-                    if (data.data.value.text) {
-                        aiText = data.data.value.text;
-                    }
-                } else {
-                    // aiText = "Sorry, I couldn't generate an image.";
+// Fixed image generation event listener
+document.addEventListener('click', function(event) {
+    if (event.target && event.target.id === 'create-image-btn') {
+        // Create a more specific prompt for image generation
+        const lastMessages = conversationState.slice(-4); // Get last few messages for context
+        const contextSummary = lastMessages
+            .filter(msg => msg.role !== 'system')
+            .map(msg => msg.content)
+            .join(' ');
+        
+        // Create a focused image prompt
+        const imagePrompt = `Create a social media image based on this conversation: ${contextSummary}. Make it visually appealing for social media with engaging colors and clear text if needed.`;
+        
+        console.log('Generating image with prompt:', imagePrompt);
+        
+        // Show typing indicator
+        showTyping();
+        
+        // Call the API for image generation
+        fetch('https://gdapicall.danktroopervx.workers.dev/', {
+            method: 'POST',
+            headers: {
+                'accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                prompt: imagePrompt,
+                provider: 'openai_image', // Make sure this is correct for your API
+                providerOptions: {
+                    model: 'dall-e-2', // or 'dall-e-3' if available
+                    size: '1024x1024', // Optional: specify image size
+                    quality: 'standard' // Optional: specify quality
                 }
-
+            })
+        })
+        .then(response => {
+            console.log('Image API response status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('Image API response data:', data);
+            hideTyping();
+            
+            let imageUrl = null;
+            let aiText = "Here's your generated image!";
+            
+            // Handle different possible response structures
+            if (data && data.data) {
+                if (typeof data.data.value === 'string') {
+                    // If the response is a direct URL string
+                    imageUrl = data.data.value;
+                } else if (data.data.value && data.data.value.url) {
+                    // If the response has a url property
+                    imageUrl = data.data.value.url;
+                } else if (data.data.value && data.data.value.cdn) {
+                    // If the response has a cdn property
+                    imageUrl = data.data.value.cdn;
+                } else if (data.data.url) {
+                    // If the url is directly in data
+                    imageUrl = data.data.url;
+                }
+            }
+            
+            // Handle error cases
+            if (!imageUrl) {
+                console.error('No image URL found in response:', data);
+                aiText = "Sorry, I couldn't generate an image. Please try again.";
                 addBotResponseWithImage({
                     text: aiText,
-                    imageUrl: 'surfer.jpeg',
+                    hasImage: false
+                });
+            } else {
+                // Successfully got image URL
+                addBotResponseWithImage({
+                    text: aiText,
+                    imageUrl: imageUrl,
                     hasImage: true
                 });
+            }
+            
+            // Add AI response to conversation state
+            addToConversationState(aiText, false);
+        })
+        .catch(error => {
+            console.error('Image generation error:', error);
+            hideTyping();
+            const errorMessage = "Sorry, there was an error generating the image. Please try again.";
+            addBotResponseWithImage({
+                text: errorMessage,
+                hasImage: false
+            });
+            addToConversationState(errorMessage, false);
+        });
+    }
+});
 
-                // Add AI response to conversation state
-                addToConversationState(aiText, false);
-            })
-            .catch(error => {
-                hideTyping();
-                const errorMessage = "Sorry, there was an error generating the image.";
-                addBotResponseWithImage({
-                    text: errorMessage
-                });
-                addToConversationState(errorMessage, false);
-            });}, 8000);
-        }
-    });
+    //     document.addEventListener('click', function(event) {
+    //         if (event.target && event.target.id === 'create-image-btn') {
+    //         // Prepare the prompt for image generation based on conversation context
+    //         const imagePrompt = getConversationContext() + "\nPlease generate a social media image based on the above conversation.";
+
+    //         // Show typing indicator
+    //         showTyping();
+    //         setTimeout(() => {
+    //         fetch('https://gdapicall.danktroopervx.workers.dev/', {
+    //             method: 'POST',
+    //             headers: {
+    //                 'accept': 'application/json',
+    //                 'Content-Type': 'application/json',
+    //                 // 'Authorization': apiKey
+    //             },
+    //             body: JSON.stringify({
+    //                 prompt: imagePrompt,
+    //                 provider: 'openai_image',
+    //                 providerOptions: {
+    //                     model: 'dall-e-2'
+    //                 }
+    //             })
+    //         })
+    //         .then(response => response.json())
+    //         .then(data => {
+    //             hideTyping();
+    //             // Check if image was created and get the image URL
+    //             let imageUrl = null;
+    //             let aiText = "Here's your generated image!";
+    //             if (data && data.data && data.data.value) {
+    //                 if (typeof data.data.value === 'object' && data.data.value.cdn) {
+    //                     imageUrl = data.data.value.cdn;
+    //                 }
+    //                 // If there's a text description, use it
+    //                 if (data.data.value.text) {
+    //                     aiText = data.data.value.text;
+    //                 }
+    //             } else {
+    //                 // aiText = "Sorry, I couldn't generate an image.";
+    //             }
+
+    //             addBotResponseWithImage({
+    //                 text: aiText,
+    //                 imageUrl: 'surfer.jpeg',
+    //                 hasImage: true
+    //             });
+
+    //             // Add AI response to conversation state
+    //             addToConversationState(aiText, false);
+    //         })
+    //         .catch(error => {
+    //             hideTyping();
+    //             const errorMessage = "Sorry, there was an error generating the image.";
+    //             addBotResponseWithImage({
+    //                 text: errorMessage
+    //             });
+    //             addToConversationState(errorMessage, false);
+    //         });}, 8000);
+    //     }
+    // });
 
         createImageVideoContainer.addEventListener('click', function() {
             console.log('Create Video');
