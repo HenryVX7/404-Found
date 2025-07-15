@@ -5,64 +5,83 @@ const typingIndicator = document.getElementById('typingIndicator');
 const createImageVideoContainer = document.getElementsByClassName('create-image-video-container');
 const messageBot = document.getElementsByClassName('messageBot');
 
-// Simple conversation state array with initial system instruction
-let conversationState = [
-    {
-        role: 'system',
-        content: 'You are a chatbot whose purpose is to ask the user targeted, relevant questions needed to generate an AI image or video related to a website or announcement. The generated content will be used to create traction on their social media platforms. Use both the current and previous messages as context to inform your questions and responses. Your goal is to gather all necessary details to create an effective, visually compelling AI-generated image or video optimized for social media engagement. In every response you create, provide an outline of the promotional material you plan to generate (i.e.image/video) if that is what the user is asking for.'
-    }
-];
+// Configuration for very strict character limits
+const MAX_CONTEXT_LENGTH = 800; // Leave room for prompt formatting
+const SYSTEM_MESSAGE = "You are a chatbot for generating social media content. Ask targeted questions for AI image/video creation.";
 
-// Configuration for conversation management
-const MAX_CONVERSATION_LENGTH = 4; // Maximum number of user/assistant pairs before summarization
-const SUMMARIZATION_THRESHOLD = 3; // When to trigger summarization
+// Minimal conversation state
+let conversationState = {
+    summary: "",
+    recentMessages: [],
+    lastUserMessage: "",
+    lastAIMessage: ""
+};
 
-// Add message to conversation state
+// Add message and manage context length
 function addToConversationState(message, isUser = true) {
-    conversationState.push({
-        role: isUser ? 'user' : 'assistant',
-        content: message
-    });
+    if (isUser) {
+        conversationState.lastUserMessage = message;
+    } else {
+        conversationState.lastAIMessage = message;
+        // Add to recent messages as a pair
+        conversationState.recentMessages.push({
+            user: conversationState.lastUserMessage,
+            ai: message
+        });
+    }
     
-    // Check if we need to summarize the conversation
-    const userAssistantMessages = conversationState.filter(msg => msg.role !== 'system');
+    // Aggressively manage context length
+    manageContextLength();
+}
+
+// Manage context to stay under character limit
+async function manageContextLength() {
+    const currentContext = buildContextString();
     
-    if (userAssistantMessages.length > MAX_CONVERSATION_LENGTH) {
-        summarizeConversation();
+    if (currentContext.length > MAX_CONTEXT_LENGTH) {
+        // If we have recent messages, summarize the oldest ones
+        if (conversationState.recentMessages.length > 1) {
+            await summarizeAndTrim();
+        } else {
+            // If only one recent message, just keep the summary very short
+            conversationState.summary = conversationState.summary.substring(0, 200) + "...";
+        }
     }
 }
 
+// Build context string for API
+function buildContextString() {
+    let context = SYSTEM_MESSAGE;
+    
+    if (conversationState.summary) {
+        context += `\nPrevious: ${conversationState.summary}`;
+    }
+    
+    // Add only the most recent messages
+    const recentCount = Math.min(2, conversationState.recentMessages.length);
+    for (let i = conversationState.recentMessages.length - recentCount; i < conversationState.recentMessages.length; i++) {
+        const msg = conversationState.recentMessages[i];
+        context += `\nUser: ${msg.user}\nAI: ${msg.ai}`;
+    }
+    
+    return context;
+}
+
 // Summarize conversation using AI
-async function summarizeConversation() {
+async function summarizeAndTrim() {
     try {
-        const systemMessage = conversationState[0];
-        const userAssistantMessages = conversationState.filter(msg => msg.role !== 'system');
+        // Take messages to summarize (all but the last one)
+        const messagesToSummarize = conversationState.recentMessages.slice(0, -1);
         
-        // Keep the last few messages and summarize the rest
-        const messagesToSummarize = userAssistantMessages.slice(0, -SUMMARIZATION_THRESHOLD);
-        const recentMessages = userAssistantMessages.slice(-SUMMARIZATION_THRESHOLD);
+        if (messagesToSummarize.length === 0) return;
         
-        if (messagesToSummarize.length === 0) {
-            return; // Nothing to summarize
-        }
-        
-        // Create summarization prompt
+        // Create very concise summarization prompt
         const conversationText = messagesToSummarize
-            .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.content}`)
+            .map(msg => `U: ${msg.user}\nA: ${msg.ai}`)
             .join('\n');
         
-        const summarizationPrompt = `Please create a concise summary of this conversation that captures the key context needed for an AI content creation assistant. Focus on:
-1. The type of content the user wants to create (image/video)
-2. The target platform/audience
-3. Key details about the business/topic
-4. Any specific requirements or preferences mentioned
+        const summarizationPrompt = `Summarize this conversation in 1-2 sentences. Focus on: content type wanted, platform, business details, requirements.\n\n${conversationText}`;
 
-Conversation to summarize:
-${conversationText}
-
-Create a summary that's no more than 3-4 sentences and maintains the essential context for future responses.`;
-
-        // Call AI for summarization
         const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
             method: 'POST',
             headers: {
@@ -74,82 +93,39 @@ Create a summary that's no more than 3-4 sentences and maintains the essential c
                 provider: 'openai_chat',
                 providerOptions: {
                     model: 'gpt-3.5-turbo',
-                    max_tokens: 200
+                    max_tokens: 50
                 }
             })
         });
         
         const data = await response.json();
-        const summary = data.data.value || "Previous conversation about content creation.";
+        let newSummary = data.data.value || "Content creation discussion.";
         
-        // Update conversation state with summary
-        conversationState = [
-            systemMessage,
-            {
-                role: 'system',
-                content: `Previous conversation summary: ${summary}`
-            },
-            ...recentMessages
-        ];
+        // Ensure summary is very short
+        if (newSummary.length > 150) {
+            newSummary = newSummary.substring(0, 147) + "...";
+        }
         
-        console.log('Conversation summarized successfully');
+        // Update state
+        conversationState.summary = newSummary;
+        conversationState.recentMessages = conversationState.recentMessages.slice(-1); // Keep only the last message
+        
+        console.log('Summarized to:', newSummary);
         
     } catch (error) {
-        console.error('Error summarizing conversation:', error);
-        // Fallback: just keep recent messages
-        const systemMessage = conversationState[0];
-        const recentMessages = conversationState.slice(-SUMMARIZATION_THRESHOLD);
-        conversationState = [systemMessage, ...recentMessages];
+        console.error('Summarization error:', error);
+        // Fallback: just keep the most recent message
+        conversationState.summary = "Previous content creation discussion.";
+        conversationState.recentMessages = conversationState.recentMessages.slice(-1);
     }
-}
-
-// Get conversation context for API request
-function getConversationContext() {
-    return conversationState.map(msg => 
-        `${msg.role === 'user' ? 'User' : msg.role === 'assistant' ? 'Assistant' : 'System'}: ${msg.content}`
-    ).join('\n');
-}
-
-// Get conversation length for monitoring
-function getConversationLength() {
-    return conversationState.filter(msg => msg.role !== 'system').length;
 }
 
 // Auto-resize textarea
 chatInput.addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-    
     sendBtn.disabled = !this.value.trim();
 });
-
-// Sample responses for demo
-const sampleResponses = [
-    {
-        text: "I'll create a motivational fitness post for you!",
-        hasImage: true,
-        imageText: "🏋️ Fitness motivation image\n\nEnergetic workout scene with inspiring quotes about consistency and progress",
-        post: {
-            date: "July 14, 2025",
-            content: "Your only competition is who you were yesterday! 💪 Every workout, every healthy choice, every step forward is building the stronger, healthier version of yourself. Start where you are, use what you have, do what you can. #FitnessJourney #HealthyLifestyle #MotivationMonday",
-            hashtags: "#FitnessMotivation #HealthyLiving #StrongMindset"
-        }
-    },
-    {
-        text: "Here's a professional LinkedIn post about productivity:",
-        hasImage: true,
-        imageText: "📊 Professional productivity graphic\n\nClean infographic showing time management tips and productivity statistics",
-        post: {
-            date: "July 14, 2025",
-            content: "The secret to productivity isn't working harder—it's working smarter. 🧠 Focus on your top 3 priorities each day, eliminate distractions, and remember that saying 'no' to good opportunities makes room for great ones.",
-            hashtags: "#ProductivityTips #WorkSmarter #ProfessionalGrowth"
-        }
-    },
-    {
-        text: "I can help you create engaging content! What specific topic or industry would you like me to focus on? I can generate posts for fitness, business, technology, lifestyle, or any other niche.",
-        hasImage: false
-    }
-];
 
 function addMessage(content, isUser = false) {
     const messageDiv = document.createElement('div');
@@ -218,19 +194,16 @@ async function sendMessage() {
 
     showTyping();
 
-    // Get conversation context
-    const context = getConversationContext();
+    // Get very concise context
+    const context = buildContextString();
     
-    // Build enhanced prompt with context
-    const enhancedPrompt = context ? 
-        `Previous conversation:\n${context}\n\nCurrent message: ${message}\n\nPlease respond considering the conversation history.` : 
-        message;
+    // Create minimal prompt
+    const enhancedPrompt = `${context}\nUser: ${message}\n\nRespond briefly:`;
 
-    // Call GoDaddy CaaS API for AI response
-    const apiUrl = 'https://gdapicall.danktroopervx.workers.dev/';
+    console.log('Prompt length:', enhancedPrompt.length);
 
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
             method: 'POST',
             headers: {
                 'accept': 'application/json',
@@ -240,7 +213,8 @@ async function sendMessage() {
                 prompt: enhancedPrompt,
                 provider: 'openai_chat',
                 providerOptions: {
-                    model: 'gpt-3.5-turbo'
+                    model: 'gpt-3.5-turbo',
+                    max_tokens: 150
                 }
             })
         });
@@ -257,9 +231,6 @@ async function sendMessage() {
         // Add AI response to conversation state
         addToConversationState(aiResponse, false);
         
-        // Log current conversation length for monitoring
-        console.log(`Conversation length: ${getConversationLength()} messages`);
-        
     } catch (error) {
         hideTyping();
         console.error('Error sending message:', error);
@@ -269,7 +240,6 @@ async function sendMessage() {
             text: errorMessage,
         });
         
-        // Add error to conversation state
         addToConversationState(errorMessage, false);
     }
 }
@@ -283,28 +253,29 @@ chatInput.addEventListener('keypress', function(e) {
     }
 });
 
-// Enhanced image generation with better context handling
+// Image generation with minimal context
 document.addEventListener('click', function(event) {
     if (event.target && event.target.id === 'create-image-btn') {
-        // Create a more specific prompt for image generation
-        const context = getConversationContext();
+        // Use only the most recent context for image generation
+        let imageContext = "";
         
-        // Extract recent relevant context for image generation
-        const recentMessages = conversationState
-            .filter(msg => msg.role !== 'system')
-            .slice(-4) // Get last 4 user/assistant messages
-            .map(msg => msg.content)
-            .join(' ');
+        if (conversationState.summary) {
+            imageContext += conversationState.summary + " ";
+        }
         
-        // Create a focused image prompt
-        const imagePrompt = `Create a social media image based on this conversation context: ${recentMessages}. Make it visually appealing for social media with engaging colors, clear text if needed, and professional quality suitable for business marketing.`;
+        // Add the most recent exchange
+        if (conversationState.recentMessages.length > 0) {
+            const recent = conversationState.recentMessages[conversationState.recentMessages.length - 1];
+            imageContext += `User wants: ${recent.user}`;
+        }
         
-        console.log('Generating image with prompt:', imagePrompt);
+        // Keep image prompt very concise
+        const imagePrompt = `Create social media image: ${imageContext}. Professional, engaging, colorful.`;
         
-        // Show typing indicator
+        console.log('Image prompt:', imagePrompt, 'Length:', imagePrompt.length);
+        
         showTyping();
         
-        // Call the API for image generation
         fetch('https://gdapicall.danktroopervx.workers.dev/', {
             method: 'POST',
             headers: {
@@ -320,18 +291,13 @@ document.addEventListener('click', function(event) {
                 }
             })
         })
-        .then(response => {
-            console.log('Image API response status:', response.status);
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Image API response data:', data);
             hideTyping();
             
             let imageUrl = null;
             let aiText = "Here's your generated image!";
             
-            // Handle different possible response structures
             if (data && data.data) {
                 if (typeof data.data.value === 'string') {
                     imageUrl = data.data.value;
@@ -344,16 +310,13 @@ document.addEventListener('click', function(event) {
                 }
             }
             
-            // Handle error cases
             if (!imageUrl) {
-                console.error('No image URL found in response:', data);
                 aiText = "Sorry, I couldn't generate an image. Please try again.";
                 addBotResponseWithImage({
                     text: aiText,
                     hasImage: false
                 });
             } else {
-                // Successfully got image URL
                 addBotResponseWithImage({
                     text: aiText,
                     imageUrl: imageUrl,
@@ -361,7 +324,6 @@ document.addEventListener('click', function(event) {
                 });
             }
             
-            // Add AI response to conversation state
             addToConversationState(aiText, false);
         })
         .catch(error => {
@@ -377,11 +339,9 @@ document.addEventListener('click', function(event) {
     }
 });
 
-// Video generation placeholder (can be expanded later)
+// Video generation placeholder
 document.addEventListener('click', function(event) {
     if (event.target && event.target.id === 'create-video-btn') {
-        console.log('Create Video clicked');
-        // Placeholder for video generation functionality
         addBotResponseWithImage({
             text: "Video generation feature coming soon! For now, I can help you create engaging images for your social media content.",
             hasImage: false
@@ -392,13 +352,13 @@ document.addEventListener('click', function(event) {
 // Initialize
 sendBtn.disabled = true;
 
-// Add conversation state monitoring for debugging
+// Debug functions
 window.debugConversation = function() {
     console.log('Current conversation state:', conversationState);
-    console.log('Conversation length:', getConversationLength());
+    console.log('Context length:', buildContextString().length);
+    console.log('Context:', buildContextString());
 };
 
-// Optional: Add a function to manually trigger summarization for testing
 window.triggerSummarization = function() {
-    summarizeConversation();
+    summarizeAndTrim();
 };
