@@ -14,8 +14,8 @@ let conversationState = [
 ];
 
 // Configuration for conversation management
-const MAX_CONVERSATION_LENGTH = 8; // Maximum number of user/assistant pairs before summarization
-const SUMMARIZATION_THRESHOLD = 6; // When to trigger summarization
+const MAX_CONVERSATION_LENGTH = 4; // Maximum number of user/assistant pairs before summarization
+const SUMMARIZATION_THRESHOLD = 3; // When to trigger summarization
 
 // Add message to conversation state
 function addToConversationState(message, isUser = true) {
