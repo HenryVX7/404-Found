@@ -2,8 +2,7 @@ const chatInput = document.getElementById('chatInput');
         const sendBtn = document.getElementById('sendBtn');
         const chatMessages = document.getElementById('chatMessages');
         const typingIndicator = document.getElementById('typingIndicator');
-        const createImageBtn = document.getElementById('createImageBtn');
-        const createVideoBtn = document.getElementById('createVideoBtn');
+        const createImageVideoContainer = document.getElementsByClassName('create-image-video-container');
         const messageBot = document.getElementsByClassName('messageBot');
 
         // Simple conversation state array with initial system instruction
@@ -126,64 +125,6 @@ const chatInput = document.getElementById('chatInput');
 
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-            createImageBtn.addEventListener('click', function() {
-                // Prepare the prompt for image generation based on conversation context
-                const imagePrompt = getConversationContext() + "\nPlease generate a social media image based on the above conversation.";
-        
-                // Show typing indicator
-                showTyping();
-        
-                fetch('https://gdapicall.danktroopervx.workers.dev/', {
-                    method: 'POST',
-                    headers: {
-                        'accept': 'application/json',
-                        'Content-Type': 'application/json',
-                        // 'Authorization': apiKey
-                    },
-                    body: JSON.stringify({
-                        prompt: imagePrompt,
-                        provider: 'openai_image',
-                        providerOptions: {
-                            model: 'dall-e-2'
-                        }
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    hideTyping();
-                    // Check if image was created and get the image URL
-                    let imageUrl = null;
-                    let aiText = "Here's your generated image!";
-                    if (data && data.data && data.data.value) {
-                        if (typeof data.data.value === 'object' && data.data.value.cdn) {
-                            imageUrl = data.data.value.cdn;
-                        }
-                        // If there's a text description, use it
-                        if (data.data.value.text) {
-                            aiText = data.data.value.text;
-                        }
-                    } else {
-                        aiText = "Sorry, I couldn't generate an image.";
-                    }
-        
-                    addBotResponseWithImage({
-                        text: aiText,
-                        imageUrl: imageUrl,
-                        hasImage: true
-                    });
-        
-                    // Add AI response to conversation state
-                    addToConversationState(aiText, false);
-                })
-                .catch(error => {
-                    hideTyping();
-                    const errorMessage = "Sorry, there was an error generating the image.";
-                    addBotResponseWithImage({
-                        text: errorMessage
-                    });
-                    addToConversationState(errorMessage, false);
-                });
-                });
         }
 
         function showTyping() {
@@ -270,7 +211,68 @@ const chatInput = document.getElementById('chatInput');
             }
         });
 
-        createVideoBtn.addEventListener('click', function() {
+        document.addEventListener('click', function(event) {
+            if (event.target && event.target.id === 'createImageBtn') {
+            // Prepare the prompt for image generation based on conversation context
+            const imagePrompt = getConversationContext() + "\nPlease generate a social media image based on the above conversation.";
+
+            // Show typing indicator
+            showTyping();
+
+            fetch('https://gdapicall.danktroopervx.workers.dev/', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    // 'Authorization': apiKey
+                },
+                body: JSON.stringify({
+                    prompt: imagePrompt,
+                    provider: 'openai_image',
+                    providerOptions: {
+                        model: 'dall-e-2'
+                    }
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideTyping();
+                // Check if image was created and get the image URL
+                let imageUrl = null;
+                let aiText = "Here's your generated image!";
+                if (data && data.data && data.data.value) {
+                    if (typeof data.data.value === 'object' && data.data.value.cdn) {
+                        imageUrl = data.data.value.cdn;
+                    }
+                    // If there's a text description, use it
+                    if (data.data.value.text) {
+                        aiText = data.data.value.text;
+                    }
+                } else {
+                    aiText = "Sorry, I couldn't generate an image.";
+                }
+
+                addBotResponseWithImage({
+                    text: aiText,
+                    imageUrl: imageUrl,
+                    hasImage: true
+                });
+
+                // Add AI response to conversation state
+                addToConversationState(aiText, false);
+            })
+            .catch(error => {
+                hideTyping();
+                const errorMessage = "Sorry, there was an error generating the image.";
+                addBotResponseWithImage({
+                    text: errorMessage
+                });
+                addToConversationState(errorMessage, false);
+            });
+        }
+    });
+
+        createImageVideoContainer.addEventListener('click', function() {
             console.log('Create Video');
         });
 
