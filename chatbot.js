@@ -3,8 +3,13 @@ const chatInput = document.getElementById('chatInput');
         const chatMessages = document.getElementById('chatMessages');
         const typingIndicator = document.getElementById('typingIndicator');
 
-        // Simple conversation state array
-        let conversationState = [];
+        // Simple conversation state array with initial system instruction
+        let conversationState = [
+            {
+                role: 'system',
+                content: 'You are a chatbot whose purpose is to ask the user targeted, relevant questions needed to generate an AI image or video related to a website or announcement. The generated content will be used to create traction on their social media platforms. Use both the current and previous messages as context to inform your questions and responses. Your goal is to gather all necessary details to create an effective, visually compelling AI-generated image or video optimized for social media engagement.'
+            }
+        ];
 
         // Add message to conversation state
         function addToConversationState(message, isUser = true) {
@@ -13,9 +18,12 @@ const chatInput = document.getElementById('chatInput');
                 content: message
             });
             
-            // Keep only last 10 messages to prevent context from getting too long
-            if (conversationState.length > 10) {
-                conversationState = conversationState.slice(-10);
+            // Keep system message + last 10 user/assistant messages
+            if (conversationState.length > 11) {
+                // Preserve the system message (first element) and keep last 10 user/assistant messages
+                const systemMessage = conversationState[0];
+                const recentMessages = conversationState.slice(-10);
+                conversationState = [systemMessage, ...recentMessages];
             }
         }
 
