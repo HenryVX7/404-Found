@@ -5,83 +5,49 @@ const typingIndicator = document.getElementById('typingIndicator');
 const createImageVideoContainer = document.getElementsByClassName('create-image-video-container');
 const messageBot = document.getElementsByClassName('messageBot');
 
-// Configuration for very strict character limits
-const MAX_CONTEXT_LENGTH = 800; // Leave room for prompt formatting
-const SYSTEM_MESSAGE = "You are a chatbot for generating social media content. Ask targeted questions for AI image/video creation.";
+// Simple conversation state array with initial system instruction
+let conversationState = [
+    {
+        role: 'system',
+        content: 'You are a chatbot whose purpose is to ask the user targeted, relevant questions needed to generate an AI image or video related to a website or announcement. The generated content will be used to create traction on their social media platforms. Use both the current and previous messages as context to inform your questions and responses. Your goal is to gather all necessary details to create an effective, visually compelling AI-generated image or video optimized for social media engagement. In every response you create, provide an outline of the promotional material you plan to generate (i.e.image/video) if that is what the user is asking for.'
+    }
+];
 
-// Minimal conversation state
-let conversationState = {
-    summary: "",
-    recentMessages: [],
-    lastUserMessage: "",
-    lastAIMessage: ""
-};
-
-// Add message and manage context length
+// Add message to conversation state (no length management here)
 function addToConversationState(message, isUser = true) {
-    if (isUser) {
-        conversationState.lastUserMessage = message;
-    } else {
-        conversationState.lastAIMessage = message;
-        // Add to recent messages as a pair
-        conversationState.recentMessages.push({
-            user: conversationState.lastUserMessage,
-            ai: message
-        });
-    }
-    
-    // Aggressively manage context length
-    manageContextLength();
+    conversationState.push({
+        role: isUser ? 'user' : 'assistant',
+        content: message
+    });
 }
 
-// Manage context to stay under character limit
-async function manageContextLength() {
-    const currentContext = buildContextString();
-    
-    if (currentContext.length > MAX_CONTEXT_LENGTH) {
-        // If we have recent messages, summarize the oldest ones
-        if (conversationState.recentMessages.length > 1) {
-            await summarizeAndTrim();
-        } else {
-            // If only one recent message, just keep the summary very short
-            conversationState.summary = conversationState.summary.substring(0, 200) + "...";
-        }
-    }
+// Get conversation context for regular chat (can be long)
+function getConversationContext() {
+    return conversationState.map(msg => 
+        `${msg.role === 'user' ? 'User' : msg.role === 'assistant' ? 'Assistant' : 'System'}: ${msg.content}`
+    ).join('\n');
 }
 
-// Build context string for API
-function buildContextString() {
-    let context = SYSTEM_MESSAGE;
+// Create optimized image generation prompt using AI
+async function createImagePrompt() {
+    const fullContext = getConversationContext();
     
-    if (conversationState.summary) {
-        context += `\nPrevious: ${conversationState.summary}`;
-    }
-    
-    // Add only the most recent messages
-    const recentCount = Math.min(2, conversationState.recentMessages.length);
-    for (let i = conversationState.recentMessages.length - recentCount; i < conversationState.recentMessages.length; i++) {
-        const msg = conversationState.recentMessages[i];
-        context += `\nUser: ${msg.user}\nAI: ${msg.ai}`;
-    }
-    
-    return context;
-}
+    // Create a prompt for the AI to summarize the conversation into an image generation prompt
+    const summarizationPrompt = `Based on this conversation, create a concise image generation prompt (under 900 characters) that captures:
+1. The specific type of image needed (social media post, announcement, etc.)
+2. Visual style and mood
+3. Key content elements (text, objects, people, etc.)
+4. Brand/business context
+5. Platform requirements (Instagram, Facebook, etc.)
 
-// Summarize conversation using AI
-async function summarizeAndTrim() {
+Make it detailed enough for DALL-E to create an engaging social media image.
+
+Conversation:
+${fullContext}
+
+Create the image prompt:`;
+
     try {
-        // Take messages to summarize (all but the last one)
-        const messagesToSummarize = conversationState.recentMessages.slice(0, -1);
-        
-        if (messagesToSummarize.length === 0) return;
-        
-        // Create very concise summarization prompt
-        const conversationText = messagesToSummarize
-            .map(msg => `U: ${msg.user}\nA: ${msg.ai}`)
-            .join('\n');
-        
-        const summarizationPrompt = `Summarize this conversation in 1-2 sentences. Focus on: content type wanted, platform, business details, requirements.\n\n${conversationText}`;
-
         const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
             method: 'POST',
             headers: {
@@ -93,30 +59,37 @@ async function summarizeAndTrim() {
                 provider: 'openai_chat',
                 providerOptions: {
                     model: 'gpt-3.5-turbo',
-                    max_tokens: 50
+                    max_tokens: 200
                 }
             })
         });
         
         const data = await response.json();
-        let newSummary = data.data.value || "Content creation discussion.";
+        let imagePrompt = data.data.value || "Create a professional social media image with engaging colors and clear messaging.";
         
-        // Ensure summary is very short
-        if (newSummary.length > 150) {
-            newSummary = newSummary.substring(0, 147) + "...";
+        // Ensure it's under 900 characters
+        if (imagePrompt.length > 900) {
+            imagePrompt = imagePrompt.substring(0, 897) + "...";
         }
         
-        // Update state
-        conversationState.summary = newSummary;
-        conversationState.recentMessages = conversationState.recentMessages.slice(-1); // Keep only the last message
+        console.log('Generated image prompt:', imagePrompt);
+        console.log('Image prompt length:', imagePrompt.length);
         
-        console.log('Summarized to:', newSummary);
+        return imagePrompt;
         
     } catch (error) {
-        console.error('Summarization error:', error);
-        // Fallback: just keep the most recent message
-        conversationState.summary = "Previous content creation discussion.";
-        conversationState.recentMessages = conversationState.recentMessages.slice(-1);
+        console.error('Error creating image prompt:', error);
+        
+        // Fallback: create a simple prompt from recent messages
+        const recentMessages = conversationState
+            .filter(msg => msg.role !== 'system')
+            .slice(-4)
+            .map(msg => msg.content)
+            .join(' ');
+        
+        const fallbackPrompt = `Create a professional social media image based on: ${recentMessages}. Use engaging colors, clear layout, and modern design.`;
+        
+        return fallbackPrompt.length > 900 ? fallbackPrompt.substring(0, 897) + "..." : fallbackPrompt;
     }
 }
 
@@ -194,13 +167,13 @@ async function sendMessage() {
 
     showTyping();
 
-    // Get very concise context
-    const context = buildContextString();
+    // Get full conversation context for regular chat
+    const context = getConversationContext();
     
-    // Create minimal prompt
-    const enhancedPrompt = `${context}\nUser: ${message}\n\nRespond briefly:`;
-
-    console.log('Prompt length:', enhancedPrompt.length);
+    // Build enhanced prompt with context
+    const enhancedPrompt = context ? 
+        `Previous conversation:\n${context}\n\nCurrent message: ${message}\n\nPlease respond considering the conversation history.` : 
+        message;
 
     try {
         const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
@@ -213,8 +186,7 @@ async function sendMessage() {
                 prompt: enhancedPrompt,
                 provider: 'openai_chat',
                 providerOptions: {
-                    model: 'gpt-3.5-turbo',
-                    max_tokens: 150
+                    model: 'gpt-3.5-turbo'
                 }
             })
         });
@@ -253,51 +225,42 @@ chatInput.addEventListener('keypress', function(e) {
     }
 });
 
-// Image generation with minimal context
-document.addEventListener('click', function(event) {
+// Enhanced image generation with AI-optimized prompts
+document.addEventListener('click', async function(event) {
     if (event.target && event.target.id === 'create-image-btn') {
-        // Use only the most recent context for image generation
-        let imageContext = "";
-        
-        if (conversationState.summary) {
-            imageContext += conversationState.summary + " ";
-        }
-        
-        // Add the most recent exchange
-        if (conversationState.recentMessages.length > 0) {
-            const recent = conversationState.recentMessages[conversationState.recentMessages.length - 1];
-            imageContext += `User wants: ${recent.user}`;
-        }
-        
-        // Keep image prompt very concise
-        const imagePrompt = `Create social media image: ${imageContext}. Professional, engaging, colorful.`;
-        
-        console.log('Image prompt:', imagePrompt, 'Length:', imagePrompt.length);
-        
         showTyping();
         
-        fetch('https://gdapicall.danktroopervx.workers.dev/', {
-            method: 'POST',
-            headers: {
-                'accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                prompt: imagePrompt,
-                provider: 'openai_image',
-                providerOptions: {
-                    model: 'dall-e-2',
-                    size: '1024x1024'
-                }
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
+        try {
+            // First, create an optimized image prompt using AI
+            const optimizedPrompt = await createImagePrompt();
+            
+            console.log('Using optimized prompt for image generation');
+            
+            // Then use that optimized prompt for image generation
+            const response = await fetch('https://gdapicall.danktroopervx.workers.dev/', {
+                method: 'POST',
+                headers: {
+                    'accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    prompt: optimizedPrompt,
+                    provider: 'openai_image',
+                    providerOptions: {
+                        model: 'dall-e-2',
+                        size: '1024x1024'
+                    }
+                })
+            });
+            
+            const data = await response.json();
+            console.log('Image API response:', data);
             hideTyping();
             
             let imageUrl = null;
-            let aiText = "Here's your generated image!";
+            let aiText = "Here's your generated image based on our conversation!";
             
+            // Handle different possible response structures
             if (data && data.data) {
                 if (typeof data.data.value === 'string') {
                     imageUrl = data.data.value;
@@ -310,7 +273,9 @@ document.addEventListener('click', function(event) {
                 }
             }
             
+            // Handle success/error cases
             if (!imageUrl) {
+                console.error('No image URL found in response:', data);
                 aiText = "Sorry, I couldn't generate an image. Please try again.";
                 addBotResponseWithImage({
                     text: aiText,
@@ -324,9 +289,10 @@ document.addEventListener('click', function(event) {
                 });
             }
             
+            // Add AI response to conversation state
             addToConversationState(aiText, false);
-        })
-        .catch(error => {
+            
+        } catch (error) {
             console.error('Image generation error:', error);
             hideTyping();
             const errorMessage = "Sorry, there was an error generating the image. Please try again.";
@@ -335,7 +301,7 @@ document.addEventListener('click', function(event) {
                 hasImage: false
             });
             addToConversationState(errorMessage, false);
-        });
+        }
     }
 });
 
@@ -355,10 +321,12 @@ sendBtn.disabled = true;
 // Debug functions
 window.debugConversation = function() {
     console.log('Current conversation state:', conversationState);
-    console.log('Context length:', buildContextString().length);
-    console.log('Context:', buildContextString());
+    console.log('Full context length:', getConversationContext().length);
+    console.log('Full context:', getConversationContext());
 };
 
-window.triggerSummarization = function() {
-    summarizeAndTrim();
+window.testImagePrompt = async function() {
+    const prompt = await createImagePrompt();
+    console.log('Test image prompt:', prompt);
+    console.log('Length:', prompt.length);
 };
